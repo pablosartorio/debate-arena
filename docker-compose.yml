@@ -1,0 +1,36 @@
+services:
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    # GPU NVIDIA — descomentar si tenés GPU
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - DATA_DIR=/app/data
+    depends_on:
+      - ollama
+    volumes:
+      - ./backend:/app
+      - ./frontend:/app/frontend
+      - debate_data:/app/data
+    # Necesario en Linux para que el devcontainer acceda a host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  ollama_data:
+  debate_data:

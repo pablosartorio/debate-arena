@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>◆ AGENT&nbsp;FLOW ◆</h1>
+  </header>
+
+  <section class="controls">
+    <div class="control-group">
+      <label for="topic">Tema</label>
+      <input type="text" id="topic" value="el futuro de la inteligencia artificial y quién debería controlarla" />
+    </div>
+    <div class="control-group">
+      <label for="max_turns">Turnos</label>
+      <input type="number" id="max_turns" value="6" min="2" max="20" />
+    </div>
+    <div class="control-group">
+      <label for="max_words">Palabras</label>
+      <input type="number" id="max_words" value="80" min="20" max="500" />
+    </div>
+    <div class="control-group">
+      <label for="model">Modelo</label>
+      <select id="model">
+        <option value="llama3.2">llama3.2</option>
+      </select>
+    </div>
+    <div class="button-group">
+      <button id="btn-start" class="btn-primary">▶ INICIAR</button>
+      <button id="btn-stop" class="btn-danger" disabled>■ DETENER</button>
+      <button id="btn-history" class="btn-secondary">📚 HISTORIAL</button>
+    </div>
+  </section>
+
+  <section class="arena">
+    <!-- BACK WALL -->
+    <div class="wall"></div>
+    <div class="window-frame"></div>
+    <div class="clock"></div>
+    <div class="painting p1"></div>
+    <div class="painting p2"></div>
+    <div class="painting p3"></div>
+    <div class="plant"></div>
+
+    <!-- FLOOR -->
+    <div class="floor"></div>
+
+    <!-- BACK DESK (moderator's podium) -->
+    <div class="back-desk">
+      <div class="back-desk-top"></div>
+      <div class="back-desk-monitor"></div>
+    </div>
+
+    <!-- CENTER RUG + ROUND TABLE -->
+    <div class="rug"></div>
+    <div class="round-table"></div>
+
+    <!-- AGENTS -->
+    <div class="stage">
+      <!-- MODERATOR — behind the back desk -->
+      <div class="agent-slot" id="col-moderator">
+        <div class="bubble-anchor" id="bubble-moderator"></div>
+        <div class="character" id="char-moderator" data-character="moderator"></div>
+        <div class="agent-plate plate-moderator">
+          <span class="agent-name" id="name-moderator">MODERADOR</span>
+          <span class="agent-role">OBSERVA</span>
+          <span class="agent-status" id="status-moderator"></span>
+        </div>
+      </div>
+
+      <!-- VALENTINA — left of round table -->
+      <div class="agent-slot" id="col-agent1">
+        <div class="bubble-anchor" id="bubble-agent1"></div>
+        <div class="character" id="char-agent1" data-character="valentina"></div>
+        <div class="agent-plate plate-agent1">
+          <span class="agent-name" id="name-agent1">VALENTINA</span>
+          <span class="agent-role">ACELERACIONISTA</span>
+          <span class="agent-status" id="status-agent1"></span>
+          <span class="agent-score" id="score-agent1"></span>
+        </div>
+      </div>
+
+      <!-- BRUNO — right of round table -->
+      <div class="agent-slot" id="col-agent2">
+        <div class="bubble-anchor" id="bubble-agent2"></div>
+        <div class="character" id="char-agent2" data-character="bruno"></div>
+        <div class="agent-plate plate-agent2">
+          <span class="agent-name" id="name-agent2">BRUNO</span>
+          <span class="agent-role">HUMANISTA</span>
+          <span class="agent-status" id="status-agent2"></span>
+          <span class="agent-score" id="score-agent2"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="status-bar" class="status-bar">▸ LISTO PARA DEBATIR</div>
+
+  <!-- Panel de historial - lista debates pasados -->
+  <div id="history-panel" class="summary-panel hidden" role="dialog" aria-hidden="true">
+    <div class="summary-card">
+      <button class="summary-close" id="history-close" aria-label="Cerrar historial">×</button>
+      <h2 class="summary-title">◆ HISTORIAL DE DEBATES ◆</h2>
+      <div id="history-list" class="history-list">Cargando...</div>
+    </div>
+  </div>
+
+  <!-- Panel de detalle - muestra un debate completo en read-only -->
+  <div id="detail-panel" class="summary-panel hidden" role="dialog" aria-hidden="true">
+    <div class="summary-card">
+      <button class="summary-close" id="detail-close" aria-label="Cerrar detalle">×</button>
+      <div class="detail-header">
+        <button class="btn-link" id="detail-back">← Volver al historial</button>
+        <button class="btn-link" id="detail-export">⬇ Exportar JSON</button>
+      </div>
+      <h2 class="summary-title" id="detail-title">DEBATE</h2>
+      <div id="detail-meta" class="detail-meta"></div>
+      <div id="detail-verdict" class="summary-verdict"></div>
+      <div id="detail-scores" class="summary-scores"></div>
+      <div id="detail-overall" class="summary-overall"></div>
+      <div id="detail-turns" class="detail-turns"></div>
+      <div id="detail-interventions" class="detail-interventions"></div>
+    </div>
+  </div>
+
+  <!-- Panel de resumen final - aparece al cerrar un debate -->
+  <div id="summary-panel" class="summary-panel hidden" role="dialog" aria-hidden="true">
+    <div class="summary-card">
+      <button class="summary-close" id="summary-close" aria-label="Cerrar resumen">×</button>
+      <h2 class="summary-title">◆ DEBATE FINALIZADO ◆</h2>
+      <div id="summary-verdict" class="summary-verdict"></div>
+      <div id="summary-scores" class="summary-scores"></div>
+      <div id="summary-overall" class="summary-overall"></div>
+      <div id="summary-agents" class="summary-agents"></div>
+      <div id="summary-key-moments" class="summary-key-moments"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

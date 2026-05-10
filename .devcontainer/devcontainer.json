@@ -1,0 +1,42 @@
+{
+  "name": "debate-arena",
+
+  // Usa el mismo docker-compose.yml del proyecto
+  // El devcontainer se conecta al servicio 'backend' ya definido
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "backend",
+  "workspaceFolder": "/app",
+
+  // Ollama corre en el host (fuera del container), no adentro
+  // En Linux necesita host.docker.internal mapeado al host
+  "remoteEnv": {
+    "OLLAMA_HOST": "http://host.docker.internal:11434"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.debugpy",
+        "charliermarsh.ruff",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "ms-python.vscode-pylance"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        },
+        "editor.rulers": [100]
+      }
+    }
+  },
+
+  // Instala dependencias al crear el container
+  "postCreateCommand": "pip install -r /app/requirements.txt"
+}
