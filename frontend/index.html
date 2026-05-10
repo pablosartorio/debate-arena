@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 </head>
 <body>
   <header>
@@ -37,6 +38,7 @@
       <button id="btn-start" class="btn-primary">▶ INICIAR</button>
       <button id="btn-stop" class="btn-danger" disabled>■ DETENER</button>
       <button id="btn-history" class="btn-secondary">📚 HISTORIAL</button>
+      <button id="btn-graph" class="btn-secondary">◈ GRAFO</button>
     </div>
   </section>
 
@@ -141,6 +143,15 @@
       <div id="summary-overall" class="summary-overall"></div>
       <div id="summary-agents" class="summary-agents"></div>
       <div id="summary-key-moments" class="summary-key-moments"></div>
+    </div>
+  </div>
+
+  <!-- Panel de grafo - muestra el flujo LangGraph con nodo activo en vivo -->
+  <div id="graph-panel" class="summary-panel hidden" role="dialog" aria-hidden="true">
+    <div class="summary-card graph-card">
+      <button class="summary-close" id="graph-close" aria-label="Cerrar grafo">×</button>
+      <h2 class="summary-title">◆ FLUJO DEL DEBATE ◆</h2>
+      <div id="graph-mermaid">Cargando diagrama...</div>
     </div>
   </div>
 

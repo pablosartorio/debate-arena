@@ -11,6 +11,8 @@ from graph.state import DebateState
 async def router_node(state: DebateState, config: RunnableConfig) -> dict[str, Any]:
     configurable = config.get("configurable", {}) if config else {}
     ws_queue: asyncio.Queue | None = configurable.get("ws_queue")
+    if ws_queue is not None:
+        await ws_queue.put({"type": "node_active", "node": "router"})
 
     turn_order = state.get("turn_order") or [state.get("agent1_id"), state.get("agent2_id")]
     current_turn = state.get("current_turn", 0)

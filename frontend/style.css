@@ -946,3 +946,92 @@ button:disabled { opacity: 0.35; cursor: not-allowed; }
   #col-agent2 { left: 72%; }
   #topic { min-width: 140px; }
 }
+
+/* ---------- Graph panel ---------- */
+.graph-card {
+  width: min(960px, 96vw);
+  max-height: 90vh;
+}
+
+#graph-mermaid {
+  overflow: auto;
+  margin-top: 8px;
+  background: #050610;
+  border: 2px solid #5a3418;
+  padding: 16px;
+  min-height: 120px;
+  font-family: var(--dialogue);
+  font-size: 18px;
+  color: #d9a558;
+}
+
+/* Mermaid SVG base overrides — pixel-art dark palette */
+#graph-mermaid svg {
+  font-family: var(--pixel) !important;
+  font-size: 10px !important;
+  background: transparent !important;
+  max-width: 100%;
+  height: auto;
+}
+
+#graph-mermaid .node rect,
+#graph-mermaid .node circle,
+#graph-mermaid .node polygon,
+#graph-mermaid .node path {
+  fill: #1a0f08 !important;
+  stroke: #d9a558 !important;
+  stroke-width: 2px !important;
+}
+
+#graph-mermaid .node .label,
+#graph-mermaid .node text,
+#graph-mermaid .nodeLabel {
+  fill: #f0c060 !important;
+  color: #f0c060 !important;
+}
+
+#graph-mermaid .edgePath .path,
+#graph-mermaid .flowchart-link {
+  stroke: #5a3418 !important;
+  stroke-width: 2px !important;
+}
+
+#graph-mermaid .edgeLabel,
+#graph-mermaid .edgeLabel span {
+  color: #d9a558 !important;
+  background: #0a0510 !important;
+  font-size: 8px !important;
+}
+
+#graph-mermaid .marker {
+  fill: #5a3418 !important;
+  stroke: #5a3418 !important;
+}
+
+/* Active node — amber glow */
+#graph-mermaid .node.node-active rect,
+#graph-mermaid .node.node-active circle,
+#graph-mermaid .node.node-active polygon,
+#graph-mermaid .node.node-active path {
+  fill: #5a3418 !important;
+  stroke: #f0c060 !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 6px #f0c060aa);
+}
+
+#graph-mermaid .node.node-active .label,
+#graph-mermaid .node.node-active text,
+#graph-mermaid .node.node-active .nodeLabel {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Visited node — green tint */
+#graph-mermaid .node.node-visited rect,
+#graph-mermaid .node.node-visited circle,
+#graph-mermaid .node.node-visited polygon,
+#graph-mermaid .node.node-visited path {
+  fill: #071207 !important;
+  stroke: #5fcf6f !important;
+  stroke-width: 2px !important;
+}

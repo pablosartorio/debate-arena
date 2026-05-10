@@ -141,6 +141,16 @@ async def export_debate(debate_id: str):
     )
 
 
+# ---------- Diagrama del grafo ----------
+
+
+@app.get("/api/graph/diagram")
+def get_graph_diagram():
+    from graph.graph import build_graph
+    compiled = build_graph()
+    return {"mermaid": compiled.get_graph().draw_mermaid()}
+
+
 # ---------- WebSocket ----------
 
 
