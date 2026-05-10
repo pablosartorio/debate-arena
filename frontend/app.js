@@ -577,19 +577,48 @@ function buildNodeIndex() {
   });
 }
 
+function _nodeShapes(el) {
+  return el.querySelectorAll("rect, circle, polygon, path.basic");
+}
+
+function _resetNodeShapes(el) {
+  _nodeShapes(el).forEach(s => {
+    s.style.removeProperty("fill");
+    s.style.removeProperty("stroke");
+    s.style.removeProperty("stroke-width");
+    s.style.removeProperty("filter");
+  });
+}
+
+function _paintNode(el, type) {
+  _nodeShapes(el).forEach(s => {
+    if (type === "active") {
+      s.style.setProperty("fill", "#5a3418", "important");
+      s.style.setProperty("stroke", "#f0c060", "important");
+      s.style.setProperty("stroke-width", "3px", "important");
+      s.style.setProperty("filter", "drop-shadow(0 0 8px #f0c060bb)", "important");
+    } else {
+      s.style.setProperty("fill", "#071207", "important");
+      s.style.setProperty("stroke", "#5fcf6f", "important");
+      s.style.setProperty("stroke-width", "2px", "important");
+    }
+  });
+}
+
 function applyGraphHighlights() {
   Object.values(graphState.nodeEls).forEach(el => {
     el.classList.remove("node-active", "node-visited");
+    _resetNodeShapes(el);
   });
   graphState.visitedNodes.forEach(name => {
     if (name !== graphState.activeNode) {
       const el = graphState.nodeEls[name];
-      if (el) el.classList.add("node-visited");
+      if (el) { el.classList.add("node-visited"); _paintNode(el, "visited"); }
     }
   });
   if (graphState.activeNode) {
     const el = graphState.nodeEls[graphState.activeNode];
-    if (el) el.classList.add("node-active");
+    if (el) { el.classList.add("node-active"); _paintNode(el, "active"); }
   }
 }
 
@@ -612,21 +641,20 @@ async function openGraphPanel() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const { mermaid: mermaidText } = await res.json();
 
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: "base",
-      themeVariables: {
-        background: "#050610",
-        primaryColor: "#1a0f08",
-        primaryBorderColor: "#d9a558",
-        primaryTextColor: "#f0c060",
-        lineColor: "#5a3418",
-        fontSize: "11px",
-      },
-    });
+    // theme is embedded in the mermaid text via %%{init}%% — js config is just fallback
+    mermaid.initialize({ startOnLoad: false, theme: "dark" });
 
     const { svg } = await mermaid.render("debate-flow-graph", mermaidText);
     container.innerHTML = svg;
+
+    // make the SVG fill the container width instead of being fixed-pixel
+    const svgEl = container.querySelector("svg");
+    if (svgEl) {
+      svgEl.setAttribute("width", "100%");
+      svgEl.removeAttribute("height");
+      svgEl.style.display = "block";
+    }
+
     graphState.rendered = true;
     buildNodeIndex();
     applyGraphHighlights();
