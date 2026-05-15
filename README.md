@@ -55,12 +55,10 @@ Ver [docs/architecture.md](docs/architecture.md) para el detalle completo.
 
 ## Agentes y personas
 
-| ID | Nombre | Postura | Color |
-|---|---|---|---|
-| `valentina` | Valentina | Aceleracionista — pro-tech sin frenos | `#7c3aed` |
-| `bruno` | Bruno | Humanista — la tech al servicio del humano | `#059669` |
-| `turulero` | Turulero | Estatista — rol activo del estado | `#c0392b` |
-| `libertad` | Libertad | Liberal — mercado libre, estado mínimo | `#2980b9` |
+| ID          | Nombre    | Postura                                    | Color     |
+| ----------- | --------- | ------------------------------------------ | --------- |
+| `valentina` | Valentina | Aceleracionista — pro-tech sin frenos      | `#7c3aed` |
+| `bruno`     | Bruno     | Humanista — la tech al servicio del humano | `#059669` |
 
 ## Comandos útiles
 
@@ -76,10 +74,10 @@ make logs       # logs del backend en tiempo real
 
 ## Variables de entorno
 
-| Variable | Default | Descripción |
-|---|---|---|
-| `OLLAMA_HOST` | `http://localhost:11434` | URL del servidor Ollama |
-| `DATA_DIR` | `./backend/data` | Directorio para la base de datos SQLite |
+| Variable      | Default                  | Descripción                             |
+| ------------- | ------------------------ | --------------------------------------- |
+| `OLLAMA_HOST` | `http://localhost:11434` | URL del servidor Ollama                 |
+| `DATA_DIR`    | `./backend/data`         | Directorio para la base de datos SQLite |
 
 ## Devcontainer (VS Code)
 
