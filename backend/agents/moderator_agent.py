@@ -126,6 +126,13 @@ def _user_prompt(
     if previous_opponent_text:
         parts.append(f'Oponente dijo antes:\n"{previous_opponent_text.strip()}"')
 
+    if own_history_summary:
+        parts.append(f"Turnos previos del mismo agente (para detectar repetición):\n{own_history_summary}")
+
+    if evaluation_criteria:
+        criteria_str = "\n".join(f"- {c}" for c in evaluation_criteria)
+        parts.append(f"Criterios específicos del tema a evaluar:\n{criteria_str}")
+
     parts.append(
         "DevolvÃ© SOLO un JSON con estas claves (cada score 0.0-1.0):\n"
         "{\n"
