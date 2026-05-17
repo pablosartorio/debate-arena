@@ -26,6 +26,7 @@ DebateEventType = Literal[
     "score_update",
     "debate_summary",
     "warning",
+    "node_active",
 ]
 
 

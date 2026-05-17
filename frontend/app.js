@@ -15,6 +15,13 @@ const state = {
   agentMap: null,
 };
 
+const graphState = {
+  rendered: false,
+  activeNode: null,
+  visitedNodes: new Set(),
+  nodeEls: {},
+};
+
 /* =========================================================
    PIXEL CHARACTER BUILDER
    16 x 24 logical pixels, rendered as SVG <rect>s.
@@ -529,6 +536,16 @@ function handleMessage(msg) {
       break;
     }
 
+    case "node_active": {
+      graphState.activeNode = msg.node;
+      graphState.visitedNodes.add(msg.node);
+      const gp = document.getElementById("graph-panel");
+      if (gp && !gp.classList.contains("hidden") && graphState.rendered) {
+        applyGraphHighlights();
+      }
+      break;
+    }
+
     case "error": {
       setStatus(`Error: ${msg.message}`);
       setRunning(false);
@@ -539,9 +556,128 @@ function handleMessage(msg) {
 }
 
 /* =========================================================
+   Graph panel
+   ========================================================= */
+function buildNodeIndex() {
+  graphState.nodeEls = {};
+  document.querySelectorAll("#graph-mermaid g.node").forEach(el => {
+    const id = el.getAttribute("id") || "";
+    let name = "";
+    // Mermaid ≥10 generates IDs like "flowchart-scout-0" or "L-scout-0"
+    const m = id.match(/(?:flowchart-|L-)([a-zA-Z_][a-zA-Z0-9_]*)-\d+/);
+    if (m) {
+      name = m[1].toLowerCase();
+    } else {
+      const textEl = el.querySelector("span, foreignObject span, text, p");
+      name = (textEl?.textContent || "").trim().toLowerCase().replace(/\s+/g, "_");
+    }
+    if (name && !name.startsWith("__")) {
+      graphState.nodeEls[name] = el;
+    }
+  });
+}
+
+function _nodeShapes(el) {
+  return el.querySelectorAll("rect, circle, polygon, path.basic");
+}
+
+function _resetNodeShapes(el) {
+  _nodeShapes(el).forEach(s => {
+    s.style.removeProperty("fill");
+    s.style.removeProperty("stroke");
+    s.style.removeProperty("stroke-width");
+    s.style.removeProperty("filter");
+  });
+}
+
+function _paintNode(el, type) {
+  _nodeShapes(el).forEach(s => {
+    if (type === "active") {
+      s.style.setProperty("fill", "#5a3418", "important");
+      s.style.setProperty("stroke", "#f0c060", "important");
+      s.style.setProperty("stroke-width", "3px", "important");
+      s.style.setProperty("filter", "drop-shadow(0 0 8px #f0c060bb)", "important");
+    } else {
+      s.style.setProperty("fill", "#071207", "important");
+      s.style.setProperty("stroke", "#5fcf6f", "important");
+      s.style.setProperty("stroke-width", "2px", "important");
+    }
+  });
+}
+
+function applyGraphHighlights() {
+  Object.values(graphState.nodeEls).forEach(el => {
+    el.classList.remove("node-active", "node-visited");
+    _resetNodeShapes(el);
+  });
+  graphState.visitedNodes.forEach(name => {
+    if (name !== graphState.activeNode) {
+      const el = graphState.nodeEls[name];
+      if (el) { el.classList.add("node-visited"); _paintNode(el, "visited"); }
+    }
+  });
+  if (graphState.activeNode) {
+    const el = graphState.nodeEls[graphState.activeNode];
+    if (el) { el.classList.add("node-active"); _paintNode(el, "active"); }
+  }
+}
+
+async function openGraphPanel() {
+  const panel = document.getElementById("graph-panel");
+  if (!panel) return;
+  panel.classList.remove("hidden");
+  panel.setAttribute("aria-hidden", "false");
+
+  if (graphState.rendered) {
+    applyGraphHighlights();
+    return;
+  }
+
+  const container = document.getElementById("graph-mermaid");
+  container.textContent = "Cargando...";
+
+  try {
+    const res = await fetch("/api/graph/diagram");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const { mermaid: mermaidText } = await res.json();
+
+    // theme is embedded in the mermaid text via %%{init}%% — js config is just fallback
+    mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+    const { svg } = await mermaid.render("debate-flow-graph", mermaidText);
+    container.innerHTML = svg;
+
+    // make the SVG fill the container width instead of being fixed-pixel
+    const svgEl = container.querySelector("svg");
+    if (svgEl) {
+      svgEl.setAttribute("width", "100%");
+      svgEl.removeAttribute("height");
+      svgEl.style.display = "block";
+    }
+
+    graphState.rendered = true;
+    buildNodeIndex();
+    applyGraphHighlights();
+  } catch (e) {
+    container.innerHTML = `<span style="color:#ff8a6a">Error: ${e.message}</span>`;
+  }
+}
+
+function hideGraphPanel() {
+  const panel = document.getElementById("graph-panel");
+  if (panel) {
+    panel.classList.add("hidden");
+    panel.setAttribute("aria-hidden", "true");
+  }
+}
+
+/* =========================================================
    Start / Stop
    ========================================================= */
 function startDebate() {
+  graphState.activeNode = null;
+  graphState.visitedNodes.clear();
+  if (graphState.rendered) applyGraphHighlights();
   clearArena();
   hideSummaryPanel();
 
@@ -944,11 +1080,22 @@ if (summaryPanelEl) summaryPanelEl.addEventListener("click", (ev) => {
   // click en el backdrop (no dentro de la card) cierra el panel
   if (ev.target === summaryPanelEl) hideSummaryPanel();
 });
+
+const btnGraph = document.getElementById("btn-graph");
+if (btnGraph) btnGraph.addEventListener("click", openGraphPanel);
+const graphCloseBtn = document.getElementById("graph-close");
+if (graphCloseBtn) graphCloseBtn.addEventListener("click", hideGraphPanel);
+const graphPanelEl = document.getElementById("graph-panel");
+if (graphPanelEl) graphPanelEl.addEventListener("click", (ev) => {
+  if (ev.target === graphPanelEl) hideGraphPanel();
+});
+
 document.addEventListener("keydown", (ev) => {
   if (ev.key === "Escape") {
     hideSummaryPanel();
     hideHistory();
     hideDetail();
+    hideGraphPanel();
   }
 });
 

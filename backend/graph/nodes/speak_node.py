@@ -133,6 +133,8 @@ def _history_for(state: DebateState, agent_id: str) -> list[dict]:
 async def speak_node(state: DebateState, config: RunnableConfig) -> dict[str, Any]:
     configurable = config.get("configurable", {}) if config else {}
     ws_queue: asyncio.Queue | None = configurable.get("ws_queue")
+    if ws_queue is not None:
+        await ws_queue.put({"type": "node_active", "node": "speak"})
     stop_event: asyncio.Event | None = configurable.get("stop_event")
     repo = configurable.get("repo")
     debate_id = configurable.get("debate_id") or state.get("debate_id")

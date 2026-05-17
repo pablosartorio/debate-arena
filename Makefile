@@ -14,7 +14,7 @@ stop:
 
 # Corre el backend localmente sin Docker (requiere Ollama corriendo en localhost)
 backend:
-	cd backend && uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+	cd backend && uvicorn main:app --host 0.0.0.0 --port 8080 --reload
 
 # Chequea errores de estilo y lógica con ruff
 lint:

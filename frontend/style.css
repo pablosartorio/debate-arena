@@ -946,3 +946,51 @@ button:disabled { opacity: 0.35; cursor: not-allowed; }
   #col-agent2 { left: 72%; }
   #topic { min-width: 140px; }
 }
+
+/* ---------- Graph panel ---------- */
+.graph-card {
+  width: min(1000px, 96vw);
+  max-height: 92vh;
+}
+
+#graph-mermaid {
+  overflow: auto;
+  margin-top: 10px;
+  background: #0d0d1a;
+  border: 2px solid #3a2a18;
+  padding: 20px 16px;
+  min-height: 200px;
+  font-family: var(--dialogue);
+  font-size: 18px;
+  color: #d9a558;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* SVG fills the container; Mermaid's dark theme sets the actual node colors */
+#graph-mermaid svg {
+  background: transparent !important;
+  display: block;
+  min-width: 400px;
+}
+
+/* Edge labels — smaller, muted */
+#graph-mermaid .edgeLabel span,
+#graph-mermaid .edgeLabel p {
+  font-size: 9px !important;
+  padding: 1px 4px !important;
+}
+
+/* Active and visited states are applied via JS inline styles;
+   these classes are kept as hooks for potential future CSS animations */
+#graph-mermaid .node.node-active .nodeLabel,
+#graph-mermaid .node.node-active text {
+  color: #fff !important;
+  fill: #fff !important;
+}
+#graph-mermaid .node.node-visited .nodeLabel,
+#graph-mermaid .node.node-visited text {
+  color: #c0eec0 !important;
+  fill: #c0eec0 !important;
+}

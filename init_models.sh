@@ -12,4 +12,4 @@ MODEL="${1:-llama3.2}"
 
 echo "Descargando modelo: $MODEL ..."
 docker compose exec ollama ollama pull "$MODEL"
-echo "Listo. Podés abrir http://localhost:8000"
+echo "Listo. Podés abrir http://localhost:8080"

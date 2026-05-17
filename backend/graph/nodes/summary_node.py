@@ -32,6 +32,8 @@ _SUMMARY_TIMEOUT = 90.0
 async def summary_node(state: DebateState, config: RunnableConfig) -> dict[str, Any]:
     configurable = config.get("configurable", {}) if config else {}
     ws_queue: asyncio.Queue | None = configurable.get("ws_queue")
+    if ws_queue is not None:
+        await ws_queue.put({"type": "node_active", "node": "summarize"})
     repo = configurable.get("repo")
     debate_id = configurable.get("debate_id") or state.get("debate_id")
 
