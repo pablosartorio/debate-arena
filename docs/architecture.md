@@ -43,6 +43,9 @@ router_node      intervene_node                   │
 summary_node ◄────────────────────────────────────┘
     │
     ▼
+finalize_node
+    │
+    ▼
 END
 ```
 
@@ -57,6 +60,7 @@ END
 | `moderate_node` | Evalúa el turno: 8 métricas de calidad |
 | `intervene_node` | El moderador interviene si detecta problemas |
 | `summary_node` | Genera resumen final del debate |
+| `finalize_node` | Cierra el debate y emite `conversation_end` |
 
 ## Estado del debate (DebateState)
 

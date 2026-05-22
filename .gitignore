@@ -58,3 +58,7 @@ htmlcov/
 
 # Claude Code (configuración local personal)
 .claude/settings.local.json
+node_modules
+
+# Mi carpeta de notas
+notas/

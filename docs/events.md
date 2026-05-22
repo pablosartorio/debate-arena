@@ -2,7 +2,7 @@
 
 ## Conexión
 
-El cliente se conecta a `ws://localhost:8000/ws`.
+El cliente se conecta a `ws://localhost:8080/ws`.
 
 ## Cliente → Servidor
 

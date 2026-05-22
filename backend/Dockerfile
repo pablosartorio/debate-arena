@@ -1,11 +1,13 @@
 FROM python:3.12-slim
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml .
+RUN uv pip install --system --no-cache -r pyproject.toml
 
-COPY . .
+COPY backend/ .
 
 EXPOSE 8080
 
