@@ -1,14 +1,14 @@
 """
 MODERATE_NODE: corre despues de cada SPEAK_NODE.
 
-EvaluÃ¡ el ultimo turno con el ModeratorAgent (8 dimensiones + flag de intervencion),
+Evaluá el ultimo turno con el ModeratorAgent (8 dimensiones + flag de intervencion),
 calcula el score total ponderado, actualiza cumulative_scores y persiste.
 
 Etapa 6: si el moderador detecta que se necesita intervencion, solo emitimos
-un evento `warning` â la intervencion como tercer hablante llega en Etapa 7.
+un evento `warning` — la intervencion como tercer hablante llega en Etapa 7.
 
-DegradaciÃ³n elegante: si el moderador falla/timeoutea, se usa un score neutro
-(todas las dimensiones en 0.5 â total ~0.55) y el debate continua sin warning.
+Degradación elegante: si el moderador falla/timeoutea, se usa un score neutro
+(todas las dimensiones en 0.5 — total ~0.55) y el debate continua sin warning.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def _decide_intervention(
     """
     thresholds = app_config.MODERATION_THRESHOLDS
 
-    # 1. thresholds duros â disparan siempre
+    # 1. thresholds duros — disparan siempre
     if score.get("hallucination_risk", 0.0) > thresholds.get("hallucination_risk", 1.1):
         return True, "hallucination", "correction"
     if score.get("repetition_penalty", 0.0) > thresholds.get("repetition_penalty", 1.1):

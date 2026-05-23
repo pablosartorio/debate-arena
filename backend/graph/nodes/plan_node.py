@@ -6,7 +6,7 @@ mediante una llamada LLM con format=json. El plan se guarda en
 state["current_plan"] y lo lee SPEAK_NODE para inyectarlo como contexto
 privado.
 
-DegradaciÃ³n elegante:
+Degradación elegante:
   - Si planning falla o timeoutea, current_plan = None y el SPEAK corre sin plan.
   - Eventos WS: agent_planning {phase: "start"|"end"}. El plan en si NO se emite.
 """

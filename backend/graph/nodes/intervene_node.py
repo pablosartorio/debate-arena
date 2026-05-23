@@ -10,7 +10,7 @@ Flujo:
   3. Persiste la intervencion completa en `interventions`
   4. Limpia pending_intervention para que el siguiente turno corra normal
 
-DegradaciÃ³n elegante: si el speak_intervention falla/timeoutea, persistimos
+Degradación elegante: si el speak_intervention falla/timeoutea, persistimos
 el mensaje original (notes del LLM) y el debate continua.
 """
 

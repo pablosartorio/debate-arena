@@ -48,4 +48,4 @@ Usar **LangGraph** (`StateGraph`) como framework de orquestación.
 
 ## Notas
 
-El archivo `orchestrator.py` se mantiene temporalmente como referencia del enfoque anterior, pero no se usa en producción.
+El archivo `orchestrator.py` (orquestación manual previa a LangGraph) fue eliminado. El historial de git conserva el código si se necesita consultarlo.

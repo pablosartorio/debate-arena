@@ -1,4 +1,4 @@
-"""ImplementaciÃ³n SQLite del DebateRepository, sobre aiosqlite."""
+"""Implementación SQLite del DebateRepository, sobre aiosqlite."""
 
 from __future__ import annotations
 

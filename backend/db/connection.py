@@ -1,5 +1,5 @@
 """
-ConexiÃ³n SQLite asincrona para el debate-arena.
+Conexión SQLite asincrona para el debate-arena.
 
 Estrategia: una sola connection persistente con WAL mode. aiosqlite serializa
 todas las queries en un thread interno, asi que esto es seguro frente a

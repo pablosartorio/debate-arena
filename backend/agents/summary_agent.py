@@ -1,12 +1,12 @@
 """
 SummaryAgent: produce el resumen narrativo del debate al final.
 
-El "ganador" se determina deterministicamente por cumulative_scores â el LLM
+El "ganador" se determina deterministicamente por cumulative_scores — el LLM
 solo aporta la narrativa (highlights, weaknesses, momentos clave). Asi
 evitamos que un LLM chico se contradiga con los scores ya calculados.
 
 Salida JSON validada con Pydantic. Si falla, devolvemos un summary vacio
-y el debate termina igual con los scores como unica seÃ±al.
+y el debate termina igual con los scores como unica señal.
 """
 
 from __future__ import annotations
@@ -53,7 +53,7 @@ def _format_turns_for_summary(turns: list[dict]) -> str:
 _SYSTEM_PROMPT = (
     "Sos un analista imparcial de debates. Tu tarea es producir un resumen "
     "estructurado del intercambio, sin tomar partido ideologico. "
-    "Sos breve y especifico, en espaÃ±ol rioplatense."
+    "Sos breve y especifico, en español rioplatense."
 )
 
 
@@ -70,7 +70,7 @@ def _user_prompt(
         f"Tema del debate: {topic}\n"
         f"Scores acumulados (suma del moderador, mayor es mejor): {scores_line}\n\n"
         f"Transcripcion del debate:\n{transcript}\n\n"
-        "DevolvÃ© SOLO un JSON con esta forma (sin markdown):\n"
+        "Devolvé SOLO un JSON con esta forma (sin markdown):\n"
         "{\n"
         '  "overall": "2-3 oraciones que describan el debate sin elegir ganador",\n'
         '  "per_agent": {\n'
@@ -79,7 +79,7 @@ def _user_prompt(
         "  },\n"
         '  "key_moments": ["...", "..."]\n'
         "}\n"
-        "Cada lista 1-2 elementos cortos. SÃ© conciso."
+        "Cada lista 1-2 elementos cortos. Sé conciso."
     )
 
 
@@ -148,6 +148,6 @@ def determine_winner(
     diff = top[1] - second[1]
 
     if diff < margin:
-        return None, f"Empate tÃ©cnico ({top[0]}={top[1]:.2f} vs {second[0]}={second[1]:.2f})."
+        return None, f"Empate técnico ({top[0]}={top[1]:.2f} vs {second[0]}={second[1]:.2f})."
 
     return top[0], f"Ventaja para {top[0]} ({top[1]:.2f} vs {second[1]:.2f})."

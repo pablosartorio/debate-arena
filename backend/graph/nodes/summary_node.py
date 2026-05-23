@@ -7,7 +7,7 @@ Tareas:
   3. Persistir en debates.summary y debates.winner_id.
   4. Emitir `debate_summary` event con todo el payload.
 
-DegradaciÃ³n elegante: si el LLM falla, el winner sigue siendo determinable
+Degradación elegante: si el LLM falla, el winner sigue siendo determinable
 y emitimos un summary minimo.
 """
 

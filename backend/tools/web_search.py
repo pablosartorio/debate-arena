@@ -3,8 +3,8 @@ WebSearchTool: busca el tema en DuckDuckGo y devuelve los top snippets.
 
 Sin API key, gratis, rate-limit informal.
 
-DegradaciÃ³n elegante: si la red falla o el modulo no esta disponible,
-devuelve ToolOutput(success=False) y el caller decide quÃ© hacer
+Degradación elegante: si la red falla o el modulo no esta disponible,
+devuelve ToolOutput(success=False) y el caller decide qué hacer
 (tipicamente seguir sin contexto extra).
 
 La libreria duckduckgo_search expone un cliente sincronico (DDGS); lo

@@ -1,7 +1,7 @@
 """
-ModeratorAgent: evalÃºa cada turno en 8 dimensiones y decide si necesita
-intervenir. La intervenciÃ³n efectiva (turno hablado del moderador) la maneja
-INTERVENE_NODE en Etapa 7 â aca solo armamos los scores y la "intencion".
+ModeratorAgent: evalúa cada turno en 8 dimensiones y decide si necesita
+intervenir. La intervención efectiva (turno hablado del moderador) la maneja
+INTERVENE_NODE en Etapa 7 — aca solo armamos los scores y la "intencion".
 
 Salida JSON con TurnScore + intervention_needed/severity/reason.
 """
@@ -97,7 +97,7 @@ class ModeratorEvaluation(BaseModel):
 
     @classmethod
     def neutral(cls) -> "ModeratorEvaluation":
-        """Score neutro cuando el moderador falla â no penaliza ni premia."""
+        """Score neutro cuando el moderador falla — no penaliza ni premia."""
         return cls()
 
     def to_score_dict(self) -> dict:
@@ -107,8 +107,8 @@ class ModeratorEvaluation(BaseModel):
 
 
 _SYSTEM_PROMPT = (
-    "Sos un moderador imparcial de debates. EvaluÃ¡s cada turno en 8 dimensiones "
-    "(0.0 = pesimo, 1.0 = excelente). La mayorÃ­a de los turnos deberian puntuar "
+    "Sos un moderador imparcial de debates. Evaluás cada turno en 8 dimensiones "
+    "(0.0 = pesimo, 1.0 = excelente). La mayoría de los turnos deberian puntuar "
     "entre 0.5 y 0.85. Reserva 0.9+ para turnos excepcionales. No tomas partido."
 )
 
@@ -134,7 +134,7 @@ def _user_prompt(
         parts.append(f"Criterios específicos del tema a evaluar:\n{criteria_str}")
 
     parts.append(
-        "DevolvÃ© SOLO un JSON con estas claves (cada score 0.0-1.0):\n"
+        "Devolvé SOLO un JSON con estas claves (cada score 0.0-1.0):\n"
         "{\n"
         '  "factual_fidelity": 0.7,\n'
         '  "hallucination_risk": 0.2,\n'
@@ -213,15 +213,15 @@ class ModeratorAgent:
         """
         system = (
             "Sos el moderador imparcial de un debate. NO tomas partido ideologico. "
-            "Tu intervencion es muy breve (1-2 oraciones), directa, en espaÃ±ol "
-            "rioplatense, sin agresividad. EncauzÃ¡s sin asumir el rol de un debatiente."
+            "Tu intervencion es muy breve (1-2 oraciones), directa, en español "
+            "rioplatense, sin agresividad. Encauzás sin asumir el rol de un debatiente."
         )
         user = (
             f"Tema: {topic}\n"
             f"Acabo de leer este turno de {agent_id}:\n"
             f'"{turn_text.strip()}"\n\n'
-            f"Detecte un problema â razon: {reason}, severidad: {severity}.\n"
-            "Intervene ahora con 1-2 oraciones que: (a) seÃ±alen el problema sin "
+            f"Detecte un problema — razon: {reason}, severidad: {severity}.\n"
+            "Intervene ahora con 1-2 oraciones que: (a) señalen el problema sin "
             "atacar a la persona, (b) reorienten al debatiente. Hablale directamente "
             f"al agente {agent_id}. Sin listas, solo texto corrido."
         )

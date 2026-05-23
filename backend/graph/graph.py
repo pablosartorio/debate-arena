@@ -1,6 +1,6 @@
-"""ConstrucciÃ³n del grafo LangGraph para el debate.
+"""Construcción del grafo LangGraph para el debate.
 
-Etapa 1 â grafo minimo: ROUTER -> SPEAK -> (router | end). Sin scout, plan, moderate.
+Etapa 1 — grafo minimo: ROUTER -> SPEAK -> (router | end). Sin scout, plan, moderate.
 Las etapas siguientes agregaran nodos sin reescribir esta estructura base.
 """
 
@@ -71,7 +71,7 @@ def build_graph():
         {"intervene": "intervene", "router": "router"},
     )
 
-    # intervene â siempre vuelve al router para el siguiente turno
+    # intervene — siempre vuelve al router para el siguiente turno
     builder.add_edge("intervene", "router")
 
     # summary corre 1 sola vez al final, antes de cerrar el WS.

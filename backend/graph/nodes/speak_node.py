@@ -55,9 +55,9 @@ def _last_intervention_for(state: DebateState, agent_id: str) -> str | None:
 
     severity = last.get("severity", "warning")
     return (
-        f"Nota privada: el moderador acaba de seÃ±alarte algo "
+        f"Nota privada: el moderador acaba de señalarte algo "
         f"(severidad: {severity}). Dijo:\n\"{msg}\"\n"
-        "TomÃ¡ nota para tu proximo turno y ajustÃ¡ tu argumento. "
+        "Tomá nota para tu proximo turno y ajustá tu argumento. "
         "No cites al moderador textualmente."
     )
 

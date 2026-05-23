@@ -1,7 +1,7 @@
 """
 SCOUT_NODE: corre 1 sola vez antes del turno 1.
 
-DegradaciÃ³n elegante: si scouting_done ya esta True, o enable_scouting es False,
+Degradación elegante: si scouting_done ya esta True, o enable_scouting es False,
 o el scout falla/timeoutea, el grafo continua sin contexto extra y el debate
 funciona como en Etapa 1.
 """
@@ -104,7 +104,7 @@ async def scout_node(state: DebateState, config: RunnableConfig) -> dict[str, An
     started = time.perf_counter()
 
     # Si tools estan habilitadas, intentamos web_search ANTES del LLM.
-    # Si falla, el scout corre sin evidencia â degradacion elegante.
+    # Si falla, el scout corre sin evidencia — degradacion elegante.
     web_evidence: str | None = None
     sources: list[str] = []
     if state.get("enable_tools"):
