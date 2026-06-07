@@ -2,13 +2,15 @@ import httpx
 import json
 from typing import AsyncIterator
 from agents.personas import Persona
-from config import OLLAMA_HOST
+from config import OLLAMA_HOST, LLM_TIMEOUT_SECONDS
 
 
 class BaseAgent:
-    def __init__(self, persona: Persona, max_words: int):
+    def __init__(self, persona: Persona, max_words: int, model: str | None = None):
         self.persona = persona
         self.max_words = max_words
+        # El modelo elegido en la UI tiene prioridad; si no, el de la persona.
+        self.model = model or persona.model
 
     @property
     def id(self) -> str:
@@ -27,11 +29,11 @@ class BaseAgent:
         word_count = 0
         buffer = ""
 
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=LLM_TIMEOUT_SECONDS) as client:
             async with client.stream(
                 "POST",
                 f"{OLLAMA_HOST}/api/chat",
-                json={"model": self.persona.model, "messages": messages, "stream": True},
+                json={"model": self.model, "messages": messages, "stream": True},
             ) as response:
                 response.raise_for_status()
                 async for line in response.aiter_lines():

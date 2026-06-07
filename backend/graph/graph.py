@@ -55,20 +55,22 @@ def build_graph():
         {"speak": "plan", "end": "summarize"},
     )
 
-    # plan -> speak -> moderate -> (router|summary)
+    # plan -> speak -> moderate -> (intervene | router | summary)
     builder.add_edge("plan", "speak")
 
+    # speak siempre pasa por moderate (incluido el ultimo turno); el cierre por
+    # turnos agotados lo decide route_after_moderate.
     builder.add_conditional_edges(
         "speak",
         route_after_speak,
-        {"router": "moderate", "end": "summarize"},
+        {"moderate": "moderate", "end": "summarize"},
     )
 
-    # moderate decide si interviene o pasa al siguiente turno
+    # moderate decide si interviene, pasa al siguiente turno, o cierra el debate
     builder.add_conditional_edges(
         "moderate",
         route_after_moderate,
-        {"intervene": "intervene", "router": "router"},
+        {"intervene": "intervene", "router": "router", "end": "summarize"},
     )
 
     # intervene — siempre vuelve al router para el siguiente turno

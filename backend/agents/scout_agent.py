@@ -57,7 +57,9 @@ def _user_prompt(topic: str, web_evidence: str | None = None) -> str:
         "Devolve SOLO un JSON con estas claves (sin texto extra, sin markdown):\n"
         '{\n'
         '  "key_concepts": [3 conceptos centrales, frases cortas],\n'
+        '  "guiding_questions": [2 preguntas que un buen debate sobre el tema debería responder],\n'
         '  "misinformation_risks": [2 afirmaciones exageradas comunes a evitar],\n'
+        '  "evaluation_criteria": [2-3 criterios concretos para juzgar si un turno es bueno en este tema],\n'
         '  "context_summary": "1-2 oraciones de contexto factual neutro"\n'
         '}\n'
         "En español rioplatense. Sé breve."

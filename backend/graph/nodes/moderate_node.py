@@ -22,7 +22,7 @@ from typing import Any
 from langchain_core.runnables import RunnableConfig
 
 import config as app_config
-from agents.moderator_agent import ModeratorAgent, ModeratorEvaluation, compute_total
+from agents.moderator_agent import ModeratorAgent, ModeratorEvaluation
 from graph.state import DebateState, ModeratorIntervention
 
 logger = logging.getLogger(__name__)

@@ -148,7 +148,7 @@ async def speak_node(state: DebateState, config: RunnableConfig) -> dict[str, An
         return {"stop_requested": True}
 
     max_words = state.get("max_words", 80)
-    agent = BaseAgent(persona, max_words)
+    agent = BaseAgent(persona, max_words, model=state.get("model"))
 
     history = _history_for(state, agent_id)
     scout_part = _scout_context(state)

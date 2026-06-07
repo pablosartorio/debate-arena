@@ -84,14 +84,16 @@ def test_route_from_router_ends_on_stop_request():
 # ---------- route_after_speak ----------
 
 
-def test_route_after_speak_continues_to_router():
+def test_route_after_speak_goes_to_moderate():
     state = {"current_turn": 1, "max_turns": 4}
-    assert route_after_speak(state) == "router"
+    assert route_after_speak(state) == "moderate"
 
 
-def test_route_after_speak_ends_when_turns_exhausted():
+def test_route_after_speak_still_moderates_last_turn():
+    # Aunque se hayan agotado los turnos, igual moderamos el ultimo turno:
+    # el cierre lo decide route_after_moderate (asi el ultimo turno se puntua).
     state = {"current_turn": 4, "max_turns": 4}
-    assert route_after_speak(state) == "end"
+    assert route_after_speak(state) == "moderate"
 
 
 def test_route_after_speak_ends_on_error():
@@ -99,23 +101,46 @@ def test_route_after_speak_ends_on_error():
     assert route_after_speak(state) == "end"
 
 
+def test_route_after_speak_ends_on_stop():
+    state = {"current_turn": 1, "max_turns": 4, "stop_requested": True}
+    assert route_after_speak(state) == "end"
+
+
 # ---------- route_after_moderate ----------
 
 
-def test_route_after_moderate_returns_router_by_default():
-    assert route_after_moderate({}) == "router"
+def test_route_after_moderate_returns_router_when_turns_remain():
+    state = {"current_turn": 1, "max_turns": 4}
+    assert route_after_moderate(state) == "router"
+
+
+def test_route_after_moderate_ends_when_turns_exhausted():
+    # El ultimo turno ya fue moderado; al estar agotados los turnos, cerramos.
+    state = {"current_turn": 4, "max_turns": 4}
+    assert route_after_moderate(state) == "end"
 
 
 def test_route_after_moderate_goes_to_intervene_when_pending():
-    state = {"pending_intervention": {"reason": "off_topic"}}
+    state = {"current_turn": 1, "max_turns": 4, "pending_intervention": {"reason": "off_topic"}}
     assert route_after_moderate(state) == "intervene"
 
 
-def test_route_after_moderate_skips_intervene_on_stop():
-    # Aunque haya intervención pendiente, si el debate fue stoppeado
-    # vamos al router (que termina el debate en el próximo edge).
+def test_route_after_moderate_skips_intervene_on_last_turn():
+    # No tiene sentido intervenir sobre el ultimo turno: cerramos directamente.
     state = {
+        "current_turn": 4,
+        "max_turns": 4,
+        "pending_intervention": {"reason": "off_topic"},
+    }
+    assert route_after_moderate(state) == "end"
+
+
+def test_route_after_moderate_ends_on_stop():
+    # Aunque haya intervención pendiente, si el debate fue stoppeado cerramos.
+    state = {
+        "current_turn": 1,
+        "max_turns": 4,
         "pending_intervention": {"reason": "off_topic"},
         "stop_requested": True,
     }
-    assert route_after_moderate(state) == "router"
+    assert route_after_moderate(state) == "end"
