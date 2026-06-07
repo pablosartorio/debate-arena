@@ -55,12 +55,15 @@ Ver [docs/architecture.md](docs/architecture.md) para el detalle completo.
 
 ## Agentes y personas
 
-| ID          | Nombre    | Postura                                    | Color     |
-| ----------- | --------- | ------------------------------------------ | --------- |
-| `valentina` | Valentina | Aceleracionista — pro-tech sin frenos      | `#7c3aed` |
-| `bruno`     | Bruno     | Humanista — la tech al servicio del humano | `#059669` |
-| `turulero`  | Turulero  | Estatista — control estatal de la IA       | `#c0392b` |
-| `libertad`  | Libertad  | Liberal — mercado libre sin regulación     | `#2980b9` |
+| ID          | Nombre          | Postura                                     | Color     |
+| ----------- | --------------- | ------------------------------------------- | --------- |
+| `valentina` | Valentina Kross | Aceleracionista — pro-tech sin frenos       | `#7c3aed` |
+| `bruno`     | Bruno Felden    | Humanista — la tech al servicio del humano  | `#059669` |
+| `turulero`  | Máximo          | Estatista — Estado activo, regula mercados  | `#c0392b` |
+| `libertad`  | Sangosta        | Liberal — mercado libre, mínimo Estado      | `#2980b9` |
+
+> El frontend actual usa `valentina` vs `bruno`; `turulero` y `sangosta` están
+> disponibles vía `/api/personas` pero no se eligen desde la UI todavía.
 
 ## Comandos útiles
 

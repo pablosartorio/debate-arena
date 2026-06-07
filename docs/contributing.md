@@ -39,26 +39,33 @@ La configuración está en `pyproject.toml`. El CI rechaza PRs que fallen el lin
 ## Cómo agregar una nueva persona/agente
 
 1. Editar `backend/agents/personas.py`
-2. Agregar una nueva instancia de `Persona`:
+2. Agregar una entrada al diccionario `PERSONAS` (la clave es el `id`):
 
 ```python
-nueva = Persona(
-    id="nueva",
-    name="Nombre",
-    emoji="🔥",
-    color="#hexcolor",
-    role_label="Etiqueta corta",
-    short_stance="Una frase que describe su postura",
-    system_prompt="""
-    Eres [nombre], [descripción de su ideología].
-    Siempre defiendes [postura principal].
-    Tu estilo es [adjetivos: directo, irónico, formal...].
-    """
-)
+PERSONAS = {
+    # ... personas existentes ...
+    "nueva": Persona(
+        id="nueva",
+        display_name="Nombre",
+        emoji="🔥",
+        color="#hexcolor",
+        model=DEFAULT_MODEL,
+        role_label="ETIQUETA",
+        short_stance="Una frase que describe su postura",
+        system_prompt=(
+            "Sos [nombre], [descripción de su ideología]. "
+            "Defendés [postura principal]. "
+            "Hablás en español rioplatense, sin listas, solo texto corrido."
+        ),
+    ),
+}
 ```
 
-3. Agregar `nueva` a la lista `PERSONAS` al final del archivo
-4. Agregar la paleta de colores pixel-art en `frontend/app.js` (sección `CHARACTER_PALETTES`)
+3. `PERSONAS` es un `dict[str, Persona]`: la nueva persona queda disponible en
+   `/api/personas` automáticamente.
+4. (Opcional) Si volvés a usar personajes SVG en el frontend, agregar la paleta
+   pixel-art en `frontend/app.js` (objeto `PALETTES`). En el diseño actual la
+   UI usa la imagen estática `room-bg.png` y el frontend fija `valentina`/`bruno`.
 
 ## Cómo agregar una nueva tool
 

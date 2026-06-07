@@ -21,7 +21,7 @@ asyncio.create_task(_run_graph())   # produce eventos → queue.put_nowait()
 asyncio.create_task(_drain())       # consume eventos → ws.send_json()
 ```
 
-El sentinel `None` en la queue señaliza el fin del stream.
+Un **sentinel** (`{"__sentinel__": "end"}`) en la queue señaliza el fin del stream.
 
 ## Por qué este patrón
 
@@ -29,9 +29,9 @@ El sentinel `None` en la queue señaliza el fin del stream.
 
 **Backpressure**: si la queue se llena (el browser no consume), `put_nowait()` tira `QueueFull` en vez de bloquear el grafo indefinidamente.
 
-**Cancellation limpia**: cuando el usuario manda `stop`, se setea `stop_flag` en el estado y el grafo termina su nodo actual. El drain espera el sentinel `None` para cerrarse.
+**Cancellation limpia**: cuando el usuario manda `stop`, `DebateSession.cancel()` setea el `stop_event`, cancela los tasks (`_run_graph`/`_drain`) y persiste el status `stopped`. El drain corta al recibir el sentinel o un `conversation_end`.
 
-**Drain timeout**: `_drain()` tiene un timeout para no quedarse esperando si el grafo se cuelga.
+**Drain timeout**: `_drain()` tiene un timeout (`WS_DRAIN_TIMEOUT_SECONDS`) para no quedarse esperando si el grafo se cuelga.
 
 ## Alternativas consideradas
 
@@ -48,4 +48,4 @@ El sentinel `None` en la queue señaliza el fin del stream.
 - La lógica de ws_bridge.py es más compleja que una llamada directa
 - Es más robusto ante disconnects inesperados
 - Los nodos son testeables sin WebSocket (solo verificar que pushearon a la queue)
-- El patrón sentinel (`None` = fin) es una convención que hay que respetar
+- El patrón sentinel (`{"__sentinel__": "end"}` = fin) es una convención que hay que respetar
