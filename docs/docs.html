@@ -368,7 +368,7 @@ flowchart LR
       <!-- ============ EVENTOS ============ -->
       <section class="doc-section" id="eventos">
         <h1>Eventos WebSocket</h1>
-        <p>El detalle campo por campo está en <a href="events.md">events.md</a>. Acá, el resumen
+        <p>El detalle campo por campo está en <a href="doc.html?f=events.md">events.md</a>. Acá, el resumen
           navegable de lo que viaja por <code>/ws</code>.</p>
 
         <div class="dir">CLIENTE → SERVIDOR</div>
@@ -615,15 +615,15 @@ pytest backend/tests/test_router_and_edges.py -q</pre>
 
         <h2>Devcontainer</h2>
         <p>El proyecto incluye <code>.devcontainer/</code>. Ollama corre en el host y el container se
-          conecta por <code>host.docker.internal</code>. Ver <a href="guides/devcontainer.md">guides/devcontainer.md</a>.</p>
+          conecta por <code>host.docker.internal</code>. Ver <a href="doc.html?f=guides/devcontainer.md">guides/devcontainer.md</a>.</p>
 
         <h2>Guías detalladas</h2>
         <ul>
-          <li><a href="guides/git-workflow.md">Git workflow y estrategia de ramas</a></li>
-          <li><a href="guides/pyproject-y-ruff.md">pyproject.toml y ruff</a></li>
-          <li><a href="guides/env-example.md">.env y .env.example</a></li>
-          <li><a href="guides/devcontainer.md">Devcontainer</a></li>
-          <li><a href="contributing.md">Cómo contribuir</a></li>
+          <li><a href="doc.html?f=guides/git-workflow.md">Git workflow y estrategia de ramas</a></li>
+          <li><a href="doc.html?f=guides/pyproject-y-ruff.md">pyproject.toml y ruff</a></li>
+          <li><a href="doc.html?f=guides/env-example.md">.env y .env.example</a></li>
+          <li><a href="doc.html?f=guides/devcontainer.md">Devcontainer</a></li>
+          <li><a href="doc.html?f=contributing.md">Cómo contribuir</a></li>
         </ul>
       </section>
 
@@ -635,14 +635,14 @@ pytest backend/tests/test_router_and_edges.py -q</pre>
           <p>El debate tiene fases secuenciales con lógica condicional y puede cortarse en
             cualquier momento. <strong>LangGraph (<code>StateGraph</code>)</strong> hace las bifurcaciones
             declarativas y el estado fluye solo entre nodos. Costo: una dependencia externa y una
-            curva de aprendizaje. <a href="adr/001-langgraph.md">Leer ADR →</a></p>
+            curva de aprendizaje. <a href="doc.html?f=adr/001-langgraph.md">Leer ADR →</a></p>
         </div>
         <div class="card accent">
           <h3>ADR 002 — asyncio.Queue como bridge WS ↔ grafo</h3>
           <p>Una <code>asyncio.Queue</code> desacopla el grafo del WebSocket: backpressure, cancelación
             limpia y nodos testeables sin socket. El sentinel
             <code>{"__sentinel__":"end"}</code> marca el fin del stream.
-            <a href="adr/002-ws-queue.md">Leer ADR →</a></p>
+            <a href="doc.html?f=adr/002-ws-queue.md">Leer ADR →</a></p>
         </div>
       </section>
 
