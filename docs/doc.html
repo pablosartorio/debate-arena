@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Debate Arena — documento</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <style>
+    :root{
+      --bg:#0a0a1f; --panel:#2a1a10; --panel-2:#1a1008; --panel-3:#160f08;
+      --ink:#2a1a10; --paper:#f8f0d0; --gold:#f0c060; --gold-dk:#d9a558;
+      --green:#5fcf6f; --red:#ff6a4a; --text:#f4e6c4; --muted:#cbb98a;
+      --pixel:'Press Start 2P','Courier New',monospace;
+      --vt:'VT323','Courier New',monospace;
+    }
+    *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+    html{ scroll-behavior:smooth; }
+    body{
+      font-family:var(--vt); font-size:20px; line-height:1.45;
+      background:var(--bg); color:var(--text);
+      -webkit-font-smoothing:none; image-rendering:pixelated;
+    }
+    a{ color:var(--gold); text-decoration:none; }
+    a:hover{ color:#fff; text-decoration:underline; }
+
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      background:rgba(26,16,8,.96); border-bottom:3px solid var(--gold-dk);
+      display:flex; align-items:center; gap:16px; padding:0 20px; height:52px;
+    }
+    .topbar .brand{ font-family:var(--pixel); font-size:11px; color:var(--paper); letter-spacing:1px; text-shadow:2px 2px 0 #8a2a1f; }
+    .topbar .sp{ margin-left:auto; }
+    .topbar a{ font-family:var(--pixel); font-size:8px; letter-spacing:1px; color:var(--gold-dk); }
+    .topbar a:hover{ color:#fff; text-decoration:none; }
+
+    main{ max-width:860px; margin:0 auto; padding:34px 24px 90px; }
+
+    /* ---- rendered markdown ---- */
+    .md h1{ font-family:var(--pixel); font-size:20px; color:var(--gold); letter-spacing:2px; line-height:1.5; margin:0 0 18px; text-shadow:3px 3px 0 #5a3418; }
+    .md h2{ font-family:var(--pixel); font-size:13px; color:var(--paper); letter-spacing:1px; margin:30px 0 12px; padding-bottom:8px; border-bottom:2px dashed #5a3418; }
+    .md h3{ font-family:var(--pixel); font-size:10px; color:var(--gold-dk); letter-spacing:1px; margin:22px 0 8px; }
+    .md h4{ font-family:var(--pixel); font-size:9px; color:var(--gold-dk); letter-spacing:1px; margin:18px 0 6px; }
+    .md p{ margin:10px 0; }
+    .md ul,.md ol{ margin:10px 0 10px 24px; }
+    .md li{ margin:5px 0; }
+    .md strong{ color:#ffe7a0; }
+    .md em{ color:var(--muted); }
+    .md hr{ border:0; border-top:2px solid #5a3418; margin:24px 0; }
+    .md a{ word-break:break-word; }
+    .md blockquote{
+      border-left:4px solid var(--gold); background:rgba(240,192,96,.07);
+      padding:8px 14px; margin:14px 0; color:var(--muted);
+    }
+    .md code{
+      font-family:var(--vt); font-size:18px; background:#0e0b16; color:#ffe7a0;
+      border:1px solid #3a2a18; padding:0 5px; border-radius:3px;
+    }
+    .md pre{
+      background:#0e0b16; border:2px solid #3a2a18; padding:14px 16px;
+      overflow-x:auto; margin:12px 0;
+    }
+    .md pre code{ border:0; background:none; color:#cfe7cf; font-size:16px; line-height:1.3; padding:0; }
+    .md table{ width:100%; border-collapse:collapse; margin:14px 0; font-size:18px; }
+    .md th,.md td{ text-align:left; padding:7px 10px; border:2px solid #3a2a18; vertical-align:top; }
+    .md th{ font-family:var(--pixel); font-size:8px; color:var(--gold); letter-spacing:1px; background:var(--panel-2); }
+    .md tr:nth-child(even) td{ background:rgba(255,255,255,.02); }
+    .md img{ max-width:100%; }
+
+    .loading,.error{ font-family:var(--pixel); font-size:10px; color:var(--gold-dk); letter-spacing:1px; padding:40px 0; }
+    .error{ color:var(--red); }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <span class="brand">◆ DEBATE ARENA</span>
+    <span class="sp"></span>
+    <a href="docs.html">← Documentación</a>
+    <a id="srclink" href="https://github.com/pablosartorio/debate-arena/tree/main/docs" target="_blank" rel="noopener">Ver fuente ↗</a>
+  </div>
+  <main>
+    <div id="content" class="md"><div class="loading">Cargando…</div></div>
+  </main>
+
+  <script>
+    // Whitelist de documentos servidos (mismo origen, dentro de /docs).
+    const ALLOWED = /^(events|architecture|contributing)\.md$|^(guides|adr)\/[\w-]+\.md$/;
+    const content = document.getElementById("content");
+    const srclink = document.getElementById("srclink");
+
+    function param(name){
+      return new URLSearchParams(location.search).get(name) || "";
+    }
+
+    // Resuelve un href relativo (del .md) contra el directorio del doc actual,
+    // devolviendo una ruta relativa a la raíz de /docs (o null si escapa).
+    function resolveDocPath(href, currentFile){
+      const dir = currentFile.includes("/") ? currentFile.slice(0, currentFile.lastIndexOf("/") + 1) : "";
+      try {
+        const u = new URL(href, "https://x/" + dir);
+        return u.pathname.replace(/^\//, "");
+      } catch { return null; }
+    }
+
+    // Reescribe los links .md internos para que abran en este visor.
+    function rewriteLinks(currentFile){
+      content.querySelectorAll("a[href]").forEach(a => {
+        const raw = a.getAttribute("href");
+        if (!raw || /^(https?:|mailto:|#)/i.test(raw)) return;     // externos/anclas: dejar
+        const [pathPart, hash] = raw.split("#");
+        if (!/\.md$/i.test(pathPart)) return;                      // no-markdown: dejar
+        const resolved = resolveDocPath(pathPart, currentFile);
+        if (resolved && ALLOWED.test(resolved)) {
+          a.setAttribute("href", "doc.html?f=" + resolved + (hash ? "#" + hash : ""));
+        }
+      });
+    }
+
+    async function load(){
+      const f = param("f");
+      if (!ALLOWED.test(f)){
+        content.innerHTML = '<div class="error">Documento no permitido o no especificado.</div>'
+          + '<p><a href="docs.html">← Volver a la documentación</a></p>';
+        return;
+      }
+      srclink.href = "https://github.com/pablosartorio/debate-arena/blob/main/docs/" + f;
+      try {
+        const res = await fetch(f, { cache: "no-cache" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const text = await res.text();
+        marked.setOptions({ gfm: true, breaks: false });
+        content.innerHTML = marked.parse(text);
+        rewriteLinks(f);
+        const h1 = content.querySelector("h1");
+        document.title = (h1 ? h1.textContent : f) + " — Debate Arena";
+      } catch (e){
+        content.innerHTML = '<div class="error">No se pudo cargar ' + f + ': ' + e.message + '</div>'
+          + '<p><a href="docs.html">← Volver a la documentación</a></p>';
+      }
+    }
+
+    load();
+    window.addEventListener("hashchange", () => {});  // anclas internas las maneja el browser
+  </script>
+</body>
+</html>
