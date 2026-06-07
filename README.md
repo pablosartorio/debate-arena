@@ -20,18 +20,18 @@ Sistema de debate automático entre agentes de IA con interfaz pixel-art. Dos ag
 git clone https://github.com/pablosartorio/debate-arena.git
 cd debate-arena
 
-# 2. Copiar variables de entorno
+# 2. Copiar variables de entorno (opcional)
 cp .env.example .env
 
-# 3. Levantar (requiere Docker y Ollama corriendo)
+# 3. Levantar (requiere Docker)
 make dev
 
 # 4. Abrir en el browser
-open http://localhost:8000
+open http://localhost:8080
 ```
 
-> Ollama debe estar corriendo en el host antes de `make dev`.
-> Para descargar el modelo por defecto: `./init_models.sh`
+> La primera vez Docker descarga la imagen de Ollama y el modelo. Puede demorar según la conexión.
+> Para pre-descargar el modelo manualmente: `./init_models.sh`
 
 ## Arquitectura
 
@@ -46,7 +46,7 @@ LangGraph StateGraph
   scout → router → plan → speak → moderate → [intervene?]
                    └──────────────────────────────┘ ×N
                           ↓ (al final)
-                        summary → END
+                      summary → finalize → END
 ```
 
 Los agentes se comunican con Ollama via HTTP. El estado completo del debate se persiste en SQLite después de cada turno.
@@ -55,19 +55,23 @@ Ver [docs/architecture.md](docs/architecture.md) para el detalle completo.
 
 ## Agentes y personas
 
-| ID | Nombre | Postura | Color |
-|---|---|---|---|
-| `valentina` | Valentina | Aceleracionista — pro-tech sin frenos | `#7c3aed` |
-| `bruno` | Bruno | Humanista — la tech al servicio del humano | `#059669` |
-| `turulero` | Turulero | Estatista — rol activo del estado | `#c0392b` |
-| `libertad` | Libertad | Liberal — mercado libre, estado mínimo | `#2980b9` |
+| ID          | Nombre          | Postura                                     | Color     |
+| ----------- | --------------- | ------------------------------------------- | --------- |
+| `valentina` | Valentina Kross | Aceleracionista — pro-tech sin frenos       | `#7c3aed` |
+| `bruno`     | Bruno Felden    | Humanista — la tech al servicio del humano  | `#059669` |
+| `turulero`  | Máximo          | Estatista — Estado activo, regula mercados  | `#c0392b` |
+| `libertad`  | Sangosta        | Liberal — mercado libre, mínimo Estado      | `#2980b9` |
+
+> El frontend actual usa `valentina` vs `bruno`; `turulero` y `sangosta` están
+> disponibles vía `/api/personas` pero no se eligen desde la UI todavía.
 
 ## Comandos útiles
 
 ```bash
-make dev        # docker compose up --build
+make dev        # docker compose up --build (rebuild + start)
+make up         # docker compose up (start sin rebuild)
 make stop       # docker compose down
-make backend    # backend local sin Docker
+make backend    # backend local sin Docker (Ollama debe correr en localhost)
 make lint       # ruff check backend/
 make format     # ruff format backend/
 make test       # pytest
@@ -76,10 +80,10 @@ make logs       # logs del backend en tiempo real
 
 ## Variables de entorno
 
-| Variable | Default | Descripción |
-|---|---|---|
-| `OLLAMA_HOST` | `http://localhost:11434` | URL del servidor Ollama |
-| `DATA_DIR` | `./backend/data` | Directorio para la base de datos SQLite |
+| Variable      | Default                  | Descripción                             |
+| ------------- | ------------------------ | --------------------------------------- |
+| `OLLAMA_HOST` | `http://localhost:11434` | URL del servidor Ollama                 |
+| `DATA_DIR`    | `./backend/data`         | Directorio para la base de datos SQLite |
 
 ## Devcontainer (VS Code)
 
@@ -89,7 +93,7 @@ El proyecto incluye configuración de devcontainer para desarrollo reproducible.
 2. Abrir el proyecto en VS Code
 3. `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
 
-Ollama debe seguir corriendo en el host. Ver [docs/guides/devcontainer.md](docs/guides/devcontainer.md).
+Ver [docs/guides/devcontainer.md](docs/guides/devcontainer.md).
 
 ## Stack
 

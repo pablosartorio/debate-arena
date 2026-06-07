@@ -4,11 +4,22 @@
 
 Es el archivo de configuración moderno de proyectos Python. Antes cada herramienta tenía su propio archivo de configuración (`setup.cfg`, `setup.py`, `.flake8`, `pytest.ini`, etc.). `pyproject.toml` unifica todo en un solo lugar.
 
-En este proyecto lo usamos solo para configurar herramientas (ruff y pytest). No define dependencias ni metadatos del paquete porque el proyecto no es una librería publicable.
+En este proyecto lo usamos para:
+- Declarar las dependencias del backend (sección `[project]`)
+- Configurar `ruff` (sección `[tool.ruff]`)
+- Configurar `pytest` (sección `[tool.pytest.ini_options]`)
 
 ```toml
-[tool.ruff]            ← configuración de ruff
+[project]                  ← dependencias y metadatos
+[tool.ruff]                ← configuración de ruff
 [tool.pytest.ini_options]  ← configuración de pytest
+```
+
+Las dependencias se instalan en la imagen Docker con [`uv`](https://github.com/astral-sh/uv) (un gestor de paquetes Python escrito en Rust, mucho más rápido que `pip`):
+
+```dockerfile
+COPY pyproject.toml .
+RUN uv pip install --system --no-cache -r pyproject.toml
 ```
 
 ## ¿Qué es ruff?
@@ -54,6 +65,6 @@ El CI puede rechazar automáticamente PRs que fallen el lint, evitando que entre
 
 ## ¿Tengo que instalar ruff?
 
-Para correrlo fuera de Docker: `pip install ruff`
+Para correrlo fuera de Docker: `uv pip install ruff` (o `pip install ruff` si no tenés uv).
 
 Dentro del devcontainer ya está instalado automáticamente (la extensión VS Code de ruff lo incluye).

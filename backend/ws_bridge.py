@@ -3,9 +3,9 @@ import logging
 import uuid
 from typing import Any
 
+import config
 from fastapi import WebSocket
 
-import config
 from agents.personas import PERSONAS
 from db.repository import DebateRepository
 from graph.graph import build_graph
@@ -153,7 +153,7 @@ class DebateSession:
                     event = await asyncio.wait_for(
                         self._queue.get(), timeout=config.WS_DRAIN_TIMEOUT_SECONDS
                     )
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     logger.warning("ws drain timed out, closing session")
                     break
 

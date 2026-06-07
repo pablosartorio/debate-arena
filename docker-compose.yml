@@ -15,9 +15,11 @@ services:
     #           capabilities: [gpu]
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     ports:
-      - "8000:8000"
+      - "8080:8080"
     environment:
       - OLLAMA_HOST=http://ollama:11434
       - DATA_DIR=/app/data

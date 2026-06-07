@@ -1,3 +1,25 @@
+[project]
+name = "debate-arena"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.115.5",
+    "uvicorn[standard]==0.32.1",
+    "websockets==14.1",
+    "httpx==0.28.0",
+    "pydantic==2.10.3",
+    "langgraph==0.2.62",
+    "langchain-core==0.3.28",
+    "aiosqlite==0.20.0",
+    "duckduckgo-search==6.4.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+]
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"
@@ -10,8 +32,9 @@ select = ["E", "F", "I", "UP"]
 # UP: sugerencias para modernizar código Python
 
 [tool.ruff.lint.isort]
-known-first-party = ["agents", "db", "graph", "tools", "events"]
+known-first-party = ["agents", "db", "graph", "tools"]
 
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]
 asyncio_mode = "auto"
+pythonpath = ["backend"]

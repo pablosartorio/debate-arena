@@ -58,3 +58,6 @@ htmlcov/
 
 # Claude Code (configuración local personal)
 .claude/settings.local.json
+
+# Mi carpeta de notas
+notas/

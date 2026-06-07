@@ -55,9 +55,9 @@ def _last_intervention_for(state: DebateState, agent_id: str) -> str | None:
 
     severity = last.get("severity", "warning")
     return (
-        f"Nota privada: el moderador acaba de seÃ±alarte algo "
+        f"Nota privada: el moderador acaba de señalarte algo "
         f"(severidad: {severity}). Dijo:\n\"{msg}\"\n"
-        "TomÃ¡ nota para tu proximo turno y ajustÃ¡ tu argumento. "
+        "Tomá nota para tu proximo turno y ajustá tu argumento. "
         "No cites al moderador textualmente."
     )
 
@@ -133,6 +133,8 @@ def _history_for(state: DebateState, agent_id: str) -> list[dict]:
 async def speak_node(state: DebateState, config: RunnableConfig) -> dict[str, Any]:
     configurable = config.get("configurable", {}) if config else {}
     ws_queue: asyncio.Queue | None = configurable.get("ws_queue")
+    if ws_queue is not None:
+        await ws_queue.put({"type": "node_active", "node": "speak"})
     stop_event: asyncio.Event | None = configurable.get("stop_event")
     repo = configurable.get("repo")
     debate_id = configurable.get("debate_id") or state.get("debate_id")
@@ -146,7 +148,7 @@ async def speak_node(state: DebateState, config: RunnableConfig) -> dict[str, An
         return {"stop_requested": True}
 
     max_words = state.get("max_words", 80)
-    agent = BaseAgent(persona, max_words)
+    agent = BaseAgent(persona, max_words, model=state.get("model"))
 
     history = _history_for(state, agent_id)
     scout_part = _scout_context(state)

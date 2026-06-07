@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>◆ DEBATE ARENA — Documentación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root{
+      --bg:        #0a0a1f;
+      --panel:     #2a1a10;
+      --panel-2:   #1a1008;
+      --panel-3:   #160f08;
+      --ink:       #2a1a10;
+      --paper:     #f8f0d0;
+      --gold:      #f0c060;
+      --gold-dk:   #d9a558;
+      --green:     #5fcf6f;
+      --red:       #ff6a4a;
+      --valentina: #7c3aed;
+      --bruno:     #059669;
+      --maximo:    #c0392b;
+      --sangosta:  #2980b9;
+      --text:      #f4e6c4;
+      --muted:     #cbb98a;
+      --pixel:     'Press Start 2P', 'Courier New', monospace;
+      --vt:        'VT323', 'Courier New', monospace;
+    }
+    *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+    html,body{ height:100%; }
+    body{
+      font-family:var(--vt);
+      font-size:20px;
+      background:var(--bg);
+      color:var(--text);
+      display:flex;
+      -webkit-font-smoothing:none;
+      image-rendering:pixelated;
+      line-height:1.35;
+    }
+    a{ color:var(--gold); text-decoration:none; }
+    a:hover{ color:#fff; }
+    code{
+      font-family:var(--vt); font-size:18px;
+      background:#0e0b16; color:#ffe7a0;
+      border:1px solid #3a2a18; padding:0 5px; border-radius:3px;
+    }
+    /* ---------- Sidebar ---------- */
+    .sidebar{
+      width:248px; flex:0 0 248px;
+      background:var(--panel);
+      border-right:4px solid var(--gold-dk);
+      display:flex; flex-direction:column;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+      z-index:5;
+    }
+    .brand{
+      font-family:var(--pixel); font-size:11px; color:var(--paper);
+      letter-spacing:1.5px; line-height:1.7;
+      padding:18px 14px 14px;
+      border-bottom:3px solid #5a3418;
+      text-shadow:2px 2px 0 #8a2a1f;
+    }
+    .brand small{ display:block; color:var(--gold-dk); font-size:8px; margin-top:6px; letter-spacing:2px; }
+    .brand .blink{ color:var(--green); animation:blink 1s step-end infinite; }
+    @keyframes blink{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
+    nav{ padding:10px 8px; display:flex; flex-direction:column; gap:2px; }
+    nav a{
+      font-family:var(--vt); font-size:19px;
+      color:var(--muted); padding:7px 10px;
+      border-left:3px solid transparent; letter-spacing:.5px;
+    }
+    nav a:hover{ background:rgba(255,255,255,.05); color:var(--gold); }
+    nav a.active{
+      color:var(--paper); background:rgba(240,192,96,.10);
+      border-left-color:var(--gold);
+    }
+    .sidebar-foot{
+      margin-top:auto; padding:12px 14px;
+      font-family:var(--pixel); font-size:7px; color:#6b5638;
+      border-top:2px solid #5a3418; letter-spacing:1px;
+    }
+    /* ---------- Main ---------- */
+    main{ flex:1; min-width:0; overflow-x:hidden; }
+    .topbar{
+      background:var(--panel-2);
+      border-bottom:3px solid var(--green);
+      padding:8px 24px; position:sticky; top:0; z-index:4;
+      font-family:var(--pixel); font-size:8px; color:var(--green);
+      letter-spacing:2px;
+    }
+    .wrap{ max-width:920px; margin:0 auto; padding:28px 28px 80px; }
+    .doc-section{ display:none; animation:fade .25s ease-out; }
+    .doc-section.active{ display:block; }
+    @keyframes fade{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+
+    h1{
+      font-family:var(--pixel); font-size:20px; color:var(--gold);
+      letter-spacing:2px; margin-bottom:14px; line-height:1.5;
+      text-shadow:3px 3px 0 #5a3418;
+    }
+    h2{
+      font-family:var(--pixel); font-size:13px; color:var(--paper);
+      letter-spacing:1.5px; margin:30px 0 12px; padding-bottom:8px;
+      border-bottom:2px dashed #5a3418;
+    }
+    h3{ font-family:var(--pixel); font-size:10px; color:var(--gold-dk); letter-spacing:1px; margin:20px 0 8px; }
+    p{ margin:10px 0; color:var(--text); }
+    .lead{ font-size:22px; color:#fbe098; }
+    ul,ol{ margin:10px 0 10px 22px; }
+    li{ margin:4px 0; }
+    hr{ border:0; border-top:2px solid #5a3418; margin:24px 0; }
+
+    /* pixel card */
+    .card{
+      background:var(--panel-3);
+      border:3px solid #3a2a18;
+      box-shadow:5px 5px 0 rgba(0,0,0,.5);
+      padding:16px 18px; margin:14px 0;
+    }
+    .card.accent{ border-color:var(--gold-dk); }
+    .grid{ display:grid; gap:14px; }
+    .grid.cols-2{ grid-template-columns:1fr 1fr; }
+    .grid.cols-3{ grid-template-columns:1fr 1fr 1fr; }
+    @media (max-width:780px){ .grid.cols-2,.grid.cols-3{ grid-template-columns:1fr; } }
+
+    /* tables */
+    table{ width:100%; border-collapse:collapse; margin:14px 0; font-size:18px; }
+    th,td{ text-align:left; padding:7px 10px; border:2px solid #3a2a18; vertical-align:top; }
+    th{ font-family:var(--pixel); font-size:8px; color:var(--gold); letter-spacing:1px; background:var(--panel-2); }
+    tr:nth-child(even) td{ background:rgba(255,255,255,.02); }
+
+    /* code blocks */
+    pre.code{
+      background:#0e0b16; border:2px solid #3a2a18;
+      color:#cfe7cf; padding:14px 16px; overflow-x:auto;
+      font-family:var(--vt); font-size:17px; line-height:1.3; margin:12px 0;
+    }
+    pre.code .k{ color:#ffb86a; }
+
+    /* badges & pills */
+    .badges{ display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+    .badge{
+      font-family:var(--pixel); font-size:8px; letter-spacing:1px;
+      padding:6px 9px; border:2px solid var(--gold-dk); color:var(--gold);
+      background:var(--panel-2);
+    }
+    .tag{ font-family:var(--pixel); font-size:7px; padding:3px 6px; border:1px solid currentColor; letter-spacing:1px; }
+
+    /* persona cards */
+    .persona{ border-left-width:5px; }
+    .persona .pname{ font-family:var(--pixel); font-size:10px; letter-spacing:1px; }
+    .persona .prole{ font-family:var(--pixel); font-size:7px; color:var(--gold-dk); letter-spacing:1px; margin:4px 0 8px; }
+    .persona .pid{ font-size:16px; color:var(--muted); }
+
+    /* event list */
+    .evt{ display:flex; gap:10px; align-items:baseline; padding:8px 0; border-bottom:1px solid #2a1f12; }
+    .evt .etype{ font-family:var(--pixel); font-size:9px; color:var(--green); white-space:nowrap; min-width:230px; }
+    .evt .edesc{ color:var(--muted); }
+    .dir{ font-family:var(--pixel); font-size:8px; color:var(--gold-dk); letter-spacing:1px; margin-top:18px; }
+
+    .note{ border-left:4px solid var(--gold); background:rgba(240,192,96,.07); padding:10px 14px; margin:14px 0; }
+    .note.warn{ border-left-color:var(--red); background:rgba(255,106,74,.08); }
+    .note .nt{ font-family:var(--pixel); font-size:8px; letter-spacing:1px; color:var(--gold); }
+    .note.warn .nt{ color:var(--red); }
+
+    /* mermaid */
+    .diagram{
+      background:#0e0b16; border:2px solid #3a2a18; padding:16px;
+      margin:14px 0; overflow:auto; text-align:center;
+    }
+    .mermaid{ font-family:var(--vt) !important; }
+    .diagram svg{ max-width:100%; height:auto; }
+
+    .hero{
+      border:3px solid var(--gold-dk); box-shadow:6px 6px 0 rgba(0,0,0,.6);
+      background:var(--panel-3) center/cover no-repeat;
+      min-height:200px; display:flex; align-items:flex-end;
+      padding:16px; margin:6px 0 18px; position:relative;
+      image-rendering:pixelated;
+    }
+    .hero::after{ content:''; position:absolute; inset:0; background:linear-gradient(0deg,rgba(10,8,4,.85),transparent 70%); }
+    .hero .hcap{ position:relative; z-index:1; font-family:var(--vt); font-size:20px; color:#ffe7a0; }
+    .kbd{ font-family:var(--pixel); font-size:8px; border:2px solid #5a3418; padding:3px 6px; color:var(--gold-dk); }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">◆ DEBATE<br>&nbsp;&nbsp;ARENA <span class="blink">▌</span><small>// DOCUMENTACIÓN</small></div>
+    <nav id="nav">
+      <a data-section="inicio" class="active">▸ Inicio</a>
+      <a data-section="arquitectura">▸ Arquitectura</a>
+      <a data-section="grafo">▸ El grafo</a>
+      <a data-section="eventos">▸ Eventos WS</a>
+      <a data-section="datos">▸ Modelo de datos</a>
+      <a data-section="agentes">▸ Agentes & Personas</a>
+      <a data-section="scoring">▸ Scoring</a>
+      <a data-section="tools">▸ Tools</a>
+      <a data-section="dev">▸ Dev & Contribuir</a>
+      <a data-section="adrs">▸ Decisiones (ADR)</a>
+      <a data-section="roadmap">▸ Roadmap</a>
+    </nav>
+    <div class="sidebar-foot"><a href="index.html" style="color:var(--gold)">⌂ Volver a la landing</a><br>v0.1.0 · FastAPI · LangGraph · Ollama</div>
+  </aside>
+
+  <main>
+    <div class="topbar" id="crumb">▸ INICIO</div>
+    <div class="wrap">
+
+      <!-- ============ INICIO ============ -->
+      <section class="doc-section active" id="inicio">
+        <h1>◆ DEBATE ARENA ◆</h1>
+        <div class="hero" style="background-image:url('room-bg.png')">
+          <div class="hcap">Dos IA debaten en tiempo real. Un tercer agente modera, evalúa e interviene.</div>
+        </div>
+        <p class="lead">Sistema de debate automático entre agentes de IA con interfaz pixel-art.
+          Dos agentes con posturas ideológicas distintas debaten un tema en vivo, orquestados
+          por un grafo <strong>LangGraph</strong> y moderados por un tercer agente evaluador.</p>
+
+        <div class="badges">
+          <span class="badge">PYTHON 3.12</span>
+          <span class="badge">FASTAPI</span>
+          <span class="badge">LANGGRAPH 0.2</span>
+          <span class="badge">OLLAMA</span>
+          <span class="badge">AIOSQLITE · WAL</span>
+          <span class="badge">VANILLA JS</span>
+          <span class="badge">DOCKER</span>
+        </div>
+
+        <h2>¿Cómo funciona, en 30 segundos?</h2>
+        <ol>
+          <li>El browser abre un <strong>WebSocket</strong> y manda <code>start</code> con el tema.</li>
+          <li><code>ws_bridge.py</code> lanza el <strong>grafo LangGraph</strong> y drena sus eventos a una <code>asyncio.Queue</code>.</li>
+          <li>El grafo recorre <em>scout → router → plan → speak → moderate → [intervene] → summarize → finalize</em>.</li>
+          <li>Cada token, score e intervención viaja al frontend en vivo; todo se persiste en SQLite.</li>
+        </ol>
+
+        <h2>Mapa de la documentación</h2>
+        <div class="grid cols-2">
+          <div class="card"><h3>Arquitectura</h3><p>El bridge WebSocket↔LangGraph, el estado y la base. <a data-jump="arquitectura" href="#arquitectura">Ver →</a></p></div>
+          <div class="card"><h3>El grafo</h3><p>Los 8 nodos, las aristas condicionales y el diagrama real. <a data-jump="grafo" href="#grafo">Ver →</a></p></div>
+          <div class="card"><h3>Eventos WS</h3><p>El contrato completo de los 19 eventos en vivo. <a data-jump="eventos" href="#eventos">Ver →</a></p></div>
+          <div class="card"><h3>Scoring</h3><p>Las 8 dimensiones, los pesos y cómo se elige el ganador. <a data-jump="scoring" href="#scoring">Ver →</a></p></div>
+        </div>
+      </section>
+
+      <!-- ============ ARQUITECTURA ============ -->
+      <section class="doc-section" id="arquitectura">
+        <h1>Arquitectura</h1>
+        <p>Tres capas: el <strong>browser</strong> (WebSocket + REST), el <strong>bridge</strong>
+          (<code>ws_bridge.py</code>) que media entre el WebSocket y el grafo, y el
+          <strong>grafo LangGraph</strong> que ejecuta el debate.</p>
+
+        <h2>El bridge WebSocket ↔ LangGraph</h2>
+        <p><code>DebateSession</code> arranca dos tasks concurrentes: <code>_run_graph()</code>
+          que ejecuta <code>graph.ainvoke()</code>, y <code>_drain()</code> que consume la
+          <code>asyncio.Queue</code> y reenvía cada evento con <code>ws.send_json()</code>. Los nodos
+          nunca tocan el WebSocket: solo hacen <code>queue.put(...)</code>.</p>
+
+        <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  participant B as Browser
+  participant WS as FastAPI /ws
+  participant S as DebateSession
+  participant Q as asyncio.Queue
+  participant G as LangGraph
+  B->>WS: start {topic, model, ...}
+  WS->>S: session.start(payload)
+  S->>G: create_task(_run_graph → ainvoke)
+  S->>Q: create_task(_drain)
+  loop por cada evento
+    G->>Q: put(event)
+    Q->>B: ws.send_json(event)
+  end
+  G->>Q: put(SENTINEL)
+  B->>WS: stop
+  WS->>S: cancel()
+  S-->>G: task.cancel() + status=stopped
+        </pre></div>
+
+        <div class="note"><span class="nt">POR QUÉ ESTE PATRÓN</span><br>
+          Desacopla el grafo del transporte: si el WebSocket se cae, el grafo no crashea.
+          Hay backpressure (queue acotada), un <em>sentinel</em>
+          <code>{"__sentinel__":"end"}</code> que cierra el drain, y un timeout de drenado.
+        </div>
+
+        <h2>El estado (<code>DebateState</code>)</h2>
+        <p>Un <code>TypedDict</code> que fluye por todos los nodos. Los campos acumulativos
+          (<code>turns</code>, <code>interventions</code>, <code>moderator_evaluations</code>) usan reducers
+          que concatenan. Campos clave:</p>
+        <table>
+          <tr><th>Campo</th><th>Qué guarda</th></tr>
+          <tr><td><code>topic, max_turns, max_words, model</code></td><td>parámetros del debate</td></tr>
+          <tr><td><code>turns</code></td><td>lista acumulativa de turnos hablados</td></tr>
+          <tr><td><code>current_turn</code></td><td>contador de turnos completados</td></tr>
+          <tr><td><code>current_agent_id</code> / <code>turn_order</code></td><td>quién habla ahora / orden de alternancia</td></tr>
+          <tr><td><code>scout_result</code></td><td>análisis del tema (conceptos, criterios, riesgos)</td></tr>
+          <tr><td><code>cumulative_scores</code></td><td>score acumulado por agente</td></tr>
+          <tr><td><code>pending_intervention</code> / <code>interventions</code></td><td>intervenciones del moderador</td></tr>
+          <tr><td><code>stop_requested</code> / <code>error</code></td><td>cancelación / error del grafo</td></tr>
+          <tr><td><code>summary</code></td><td>payload del resumen final</td></tr>
+        </table>
+
+        <h2>Endpoints REST</h2>
+        <table>
+          <tr><th>Ruta</th><th>Devuelve</th></tr>
+          <tr><td><code>GET /api/config</code></td><td>defaults (tema, turnos, palabras, agentes)</td></tr>
+          <tr><td><code>GET /api/personas</code></td><td>lista de personas disponibles</td></tr>
+          <tr><td><code>GET /api/models</code></td><td>modelos disponibles en Ollama</td></tr>
+          <tr><td><code>GET /api/debates</code></td><td>lista paginada de debates</td></tr>
+          <tr><td><code>GET /api/debates/{id}/full</code></td><td>debate completo (turns + evals + intervenciones + tools)</td></tr>
+          <tr><td><code>GET /api/debates/{id}/export</code></td><td>descarga JSON del debate</td></tr>
+          <tr><td><code>GET /api/graph/diagram</code></td><td>Mermaid del grafo (con theme pixel-dark)</td></tr>
+        </table>
+      </section>
+
+      <!-- ============ GRAFO ============ -->
+      <section class="doc-section" id="grafo">
+        <h1>El grafo del debate</h1>
+        <p>8 nodos conectados por aristas, algunas condicionales (<code>graph/edges.py</code>).
+          Este diagrama refleja el cableado real de <code>graph/graph.py</code>:</p>
+
+        <div class="diagram"><pre class="mermaid">
+flowchart LR
+  START([START]) --> scout
+  scout --> router
+  router -->|speak| plan
+  router -->|end| summarize
+  plan --> speak
+  speak -->|moderate| moderate
+  speak -->|end| summarize
+  moderate -->|intervene| intervene
+  moderate -->|router| router
+  moderate -->|end| summarize
+  intervene --> router
+  summarize --> finalize
+  finalize --> DONE([END])
+        </pre></div>
+
+        <div class="note"><span class="nt">FIX DE FAIRNESS</span><br>
+          El cierre por "turnos agotados" lo decide <code>route_after_moderate</code>,
+          <strong>después</strong> de moderar. Así el último turno también se evalúa y los
+          <code>cumulative_scores</code> quedan parejos entre ambos agentes.
+        </div>
+
+        <h2>Responsabilidad de cada nodo</h2>
+        <table>
+          <tr><th>Nodo</th><th>Qué hace</th></tr>
+          <tr><td><code>scout</code></td><td>analiza el tema 1 sola vez; genera contexto + criterios; corre <code>web_search</code> si hay tools</td></tr>
+          <tr><td><code>router</code></td><td>decide a quién le toca (alternancia <code>current_turn % len(turn_order)</code>)</td></tr>
+          <tr><td><code>plan</code></td><td>el agente planifica su estrategia (JSON privado, no se emite)</td></tr>
+          <tr><td><code>speak</code></td><td>el agente genera su discurso (streaming de tokens)</td></tr>
+          <tr><td><code>moderate</code></td><td>evalúa el turno en 8 dimensiones y decide si intervenir</td></tr>
+          <tr><td><code>intervene</code></td><td>el moderador habla cuando detecta un problema</td></tr>
+          <tr><td><code>summarize</code></td><td>determina el ganador por score y pide la narrativa al LLM</td></tr>
+          <tr><td><code>finalize</code></td><td>cierra el debate y emite <code>conversation_end</code></td></tr>
+        </table>
+
+        <h2>Degradación elegante</h2>
+        <p>Si un agente (scout / plan / moderate / summary) falla o supera su timeout, el grafo
+          continúa con un valor por defecto (plan vacío, score neutro, summary mínimo). El debate
+          nunca se traba por una llamada LLM caída.</p>
+      </section>
+
+      <!-- ============ EVENTOS ============ -->
+      <section class="doc-section" id="eventos">
+        <h1>Eventos WebSocket</h1>
+        <p>El detalle campo por campo está en <a href="events.md">events.md</a>. Acá, el resumen
+          navegable de lo que viaja por <code>/ws</code>.</p>
+
+        <div class="dir">CLIENTE → SERVIDOR</div>
+        <div class="card">
+          <div class="evt"><span class="etype">start</span><span class="edesc">inicia un debate (tema, modelo, flags). Una sesión activa por socket.</span></div>
+          <div class="evt"><span class="etype">stop</span><span class="edesc">cancela el debate en curso (cancelación dura del task).</span></div>
+        </div>
+
+        <div class="dir">SERVIDOR → CLIENTE · 19 EVENTOS</div>
+        <div class="card">
+          <div class="evt"><span class="etype">node_active</span><span class="edesc">el grafo entró a un nodo (resalta el panel del grafo)</span></div>
+          <div class="evt"><span class="etype">scouting_start</span><span class="edesc">arrancó el análisis del tema</span></div>
+          <div class="evt"><span class="etype">scouting_completed</span><span class="edesc">conceptos, preguntas guía, riesgos, criterios, contexto</span></div>
+          <div class="evt"><span class="etype">tool_call_start / _end</span><span class="edesc">ejecución de una tool (hoy <code>web_search</code>)</span></div>
+          <div class="evt"><span class="etype">turn_counter</span><span class="edesc">el router decidió el próximo orador</span></div>
+          <div class="evt"><span class="etype">agent_planning</span><span class="edesc">fase de planificación (start/end), el plan no se emite</span></div>
+          <div class="evt"><span class="etype">turn_start / turn_end</span><span class="edesc">delimitan un turno hablado (agente o moderador)</span></div>
+          <div class="evt"><span class="etype">token</span><span class="edesc">token del discurso, en streaming</span></div>
+          <div class="evt"><span class="etype">moderator_evaluating</span><span class="edesc">el moderador empezó a evaluar (badge "evaluando…")</span></div>
+          <div class="evt"><span class="etype">moderator_evaluation</span><span class="edesc">8 dimensiones + total del turno</span></div>
+          <div class="evt"><span class="etype">score_update</span><span class="edesc">scoreboard acumulado por agente</span></div>
+          <div class="evt"><span class="etype">moderator_intervention_pending</span><span class="edesc">se decidió intervenir (reason + severity)</span></div>
+          <div class="evt"><span class="etype">moderator_intervention</span><span class="edesc">intervención hablada (start/end, con message final)</span></div>
+          <div class="evt"><span class="etype">summary_start</span><span class="edesc">arrancó el resumen final</span></div>
+          <div class="evt"><span class="etype">debate_summary</span><span class="edesc">ganador + verdict + scores + narrativa</span></div>
+          <div class="evt"><span class="etype">conversation_end</span><span class="edesc">el debate terminó</span></div>
+          <div class="evt"><span class="etype">error</span><span class="edesc">error de validación o excepción del grafo</span></div>
+        </div>
+
+        <div class="note"><span class="nt">CONTRATO ADITIVO</span><br>
+          Los eventos solo agregan campos; nunca renombran ni eliminan. El frontend ignora lo
+          que no conoce.
+        </div>
+      </section>
+
+      <!-- ============ DATOS ============ -->
+      <section class="doc-section" id="datos">
+        <h1>Modelo de datos</h1>
+        <p>SQLite con WAL mode (<code>db/schema.sql</code>). Una sola conexión <code>aiosqlite</code>
+          persistente serializa las queries. El acceso pasa por <code>DebateRepository</code> (ABC),
+          implementado por <code>SQLiteDebateRepository</code>.</p>
+
+        <div class="diagram"><pre class="mermaid">
+erDiagram
+  debates  ||--o{ turns         : "tiene"
+  debates  ||--o{ interventions : "tiene"
+  debates  ||--o{ tool_calls    : "tiene"
+  debates  ||--o{ events        : "tiene"
+  turns    ||--o{ evaluations   : "se evalúa con"
+  turns    ||--o{ tool_calls    : "puede usar"
+  debates {
+    text id PK
+    text topic
+    text status
+    text winner_id
+    text summary
+  }
+  turns {
+    text id PK
+    int  turn_number
+    text agent_id
+    text response_text
+    int  word_count
+  }
+  evaluations {
+    text id PK
+    real total
+    real factual_fidelity
+    real hallucination_risk
+  }
+  interventions {
+    text id PK
+    int  turn_number
+    text reason
+    text severity
+  }
+  tool_calls {
+    text id PK
+    text tool_name
+    int  success
+  }
+        </pre></div>
+
+        <table>
+          <tr><th>Tabla</th><th>Contenido</th></tr>
+          <tr><td><code>debates</code></td><td>metadatos: topic, agentes, modelo, status, winner, summary (JSON)</td></tr>
+          <tr><td><code>turns</code></td><td>cada turno: texto, word_count, latencia, plan (JSON). Único por (debate, turn_number)</td></tr>
+          <tr><td><code>evaluations</code></td><td>8 métricas + total por turno</td></tr>
+          <tr><td><code>interventions</code></td><td>intervenciones del moderador (reason, severity, message)</td></tr>
+          <tr><td><code>tool_calls</code></td><td>llamadas a tools (turn_id puede ser null si es del scout)</td></tr>
+          <tr><td><code>events</code></td><td>audit trail de eventos del scout</td></tr>
+        </table>
+        <p>Todas las tablas hijas tienen <code>ON DELETE CASCADE</code> y los <code>PRAGMA foreign_keys = ON</code>.</p>
+      </section>
+
+      <!-- ============ AGENTES ============ -->
+      <section class="doc-section" id="agentes">
+        <h1>Agentes & Personas</h1>
+        <p>Los debatientes hablan vía <code>BaseAgent</code> (streaming contra <code>/api/chat</code> de
+          Ollama, con cap de palabras). Los agentes especializados (<code>ScoutAgent</code>,
+          <code>ModeratorAgent</code>, <code>SummaryAgent</code> y <code>plan_for_turn</code>) usan salida JSON
+          validada con Pydantic.</p>
+
+        <div class="note"><span class="nt">MODELO EFECTIVO</span><br>
+          El modelo elegido en la UI (<code>state["model"]</code>) se usa en <em>todos</em> los agentes,
+          incluido el discurso de los debatientes (fallback: el modelo de la persona).
+        </div>
+
+        <h2>Personas</h2>
+        <div class="grid cols-2">
+          <div class="card persona" style="border-left-color:var(--valentina)">
+            <div class="pname" style="color:var(--valentina)">⚡ Valentina Kross</div>
+            <div class="prole">ACELERACIONISTA · #7c3aed</div>
+            <div class="pid">id: <code>valentina</code></div>
+            <p>Pro-tech sin frenos: la IA y la automatización como camino más rápido a la abundancia.</p>
+          </div>
+          <div class="card persona" style="border-left-color:var(--bruno)">
+            <div class="pname" style="color:var(--bruno)">🌿 Bruno Felden</div>
+            <div class="prole">HUMANISTA · #059669</div>
+            <div class="pid">id: <code>bruno</code></div>
+            <p>Tecnología subordinada al bienestar humano y al control democrático.</p>
+          </div>
+          <div class="card persona" style="border-left-color:var(--maximo)">
+            <div class="pname" style="color:var(--maximo)">✊ Máximo</div>
+            <div class="prole">ESTATISTA · #c0392b</div>
+            <div class="pid">id: <code>turulero</code></div>
+            <p>Estado activo en justicia social y regulación de mercados.</p>
+          </div>
+          <div class="card persona" style="border-left-color:var(--sangosta)">
+            <div class="pname" style="color:var(--sangosta)">📈 Sangosta</div>
+            <div class="prole">LIBERAL · #2980b9</div>
+            <div class="pid">id: <code>libertad</code></div>
+            <p>Mercado libre y mínima intervención estatal.</p>
+          </div>
+          <div class="card persona accent">
+            <div class="pname" style="color:var(--gold)">⚖️ Moderador</div>
+            <div class="prole">MODERADOR · #d9a558</div>
+            <div class="pid">id: <code>moderator</code></div>
+            <p>No toma partido: evalúa cada turno e interviene si detecta problemas.</p>
+          </div>
+        </div>
+        <div class="note"><span class="nt">NOTA UI</span><br>
+          El frontend actual enfrenta <code>valentina</code> vs <code>bruno</code>. <code>turulero</code> y
+          <code>libertad</code> existen en <code>/api/personas</code> pero todavía no se eligen desde la UI.
+        </div>
+      </section>
+
+      <!-- ============ SCORING ============ -->
+      <section class="doc-section" id="scoring">
+        <h1>Scoring</h1>
+        <p>Cada turno se evalúa en 8 dimensiones (<code>0.0</code>–<code>1.0</code>). El <code>total</code> es
+          un promedio ponderado (<code>SCORE_WEIGHTS</code>), invirtiendo las dimensiones de penalización.</p>
+
+        <table>
+          <tr><th>Dimensión</th><th>Peso</th><th>Nota</th></tr>
+          <tr><td><code>factual_fidelity</code></td><td>0.20</td><td></td></tr>
+          <tr><td><code>hallucination_risk</code></td><td>0.20</td><td>invertida (1 − hr)</td></tr>
+          <tr><td><code>consign_compliance</code></td><td>0.15</td><td></td></tr>
+          <tr><td><code>rebuttal_quality</code></td><td>0.15</td><td></td></tr>
+          <tr><td><code>clarity</code></td><td>0.12</td><td></td></tr>
+          <tr><td><code>role_adherence</code></td><td>0.10</td><td></td></tr>
+          <tr><td><code>repetition_penalty</code></td><td>0.05</td><td>invertida (1 − rp)</td></tr>
+          <tr><td><code>tool_usage_quality</code></td><td>0.03</td><td></td></tr>
+        </table>
+
+        <h2>Ganador</h2>
+        <p>Se determina <strong>deterministicamente</strong> sumando los <code>total</code> por agente
+          (<code>determine_winner</code>), con un margen (<code>0.05</code>) para declarar empate técnico. El LLM
+          del <code>summary_node</code> solo aporta la narrativa, no elige ganador.</p>
+
+        <h2>Intervención</h2>
+        <p>Además del flag del LLM, hay thresholds deterministas en
+          <code>config.MODERATION_THRESHOLDS</code> que disparan una intervención aunque el LLM no la pida:</p>
+        <pre class="code"><span class="k">hallucination_risk</span>  &gt; 0.75  → correction
+<span class="k">repetition_penalty</span>  &gt; 0.80  → warning
+<span class="k">consign_compliance</span> &lt; 0.30  → redirect
+<span class="k">role_adherence</span>     &lt; 0.40  → warning</pre>
+      </section>
+
+      <!-- ============ TOOLS ============ -->
+      <section class="doc-section" id="tools">
+        <h1>Tools</h1>
+        <p>Si <code>enable_tools=true</code>, el scout puede usar tools externas. Cada tool hereda de
+          <code>BaseTool</code>, implementa <code>run()</code> async y <strong>nunca lanza</strong>: ante un fallo
+          devuelve <code>ToolOutput(success=False, ...)</code>.</p>
+
+        <h2>Tool incluida</h2>
+        <div class="card">
+          <h3>web_search</h3>
+          <p>Búsqueda en DuckDuckGo (sin API key), corrida en threadpool para no bloquear el event
+            loop. Devuelve los top snippets + URLs como fuentes.</p>
+        </div>
+
+        <h2>Cómo agregar una tool</h2>
+        <pre class="code">from tools.base import BaseTool, ToolInput, ToolOutput
+
+class MiTool(BaseTool):
+    name = "mi_tool"
+    description = "Qué hace"
+    requires_network = False
+
+    async def run(self, input: ToolInput) -&gt; ToolOutput:
+        return ToolOutput(success=True, result="...", source="mi_tool")</pre>
+        <p>Después registrarla en <code>tools/registry.py</code> y, si querés que el scout la sugiera,
+          referenciarla desde el scouting.</p>
+      </section>
+
+      <!-- ============ DEV ============ -->
+      <section class="doc-section" id="dev">
+        <h1>Dev & Contribuir</h1>
+        <h2>Quick start</h2>
+        <pre class="code">git clone https://github.com/pablosartorio/debate-arena.git
+cd debate-arena
+cp .env.example .env        # opcional
+make dev                    # docker compose up --build
+# → backend en http://localhost:8080 · Ollama en :11434
+./init_models.sh            # pre-descargar el modelo (1ra vez)</pre>
+
+        <h2>Comandos (Makefile)</h2>
+        <table>
+          <tr><th>Comando</th><th>Qué hace</th></tr>
+          <tr><td><code>make dev</code></td><td>build + up con Docker Compose</td></tr>
+          <tr><td><code>make up</code></td><td>up sin rebuild</td></tr>
+          <tr><td><code>make stop</code></td><td>docker compose down</td></tr>
+          <tr><td><code>make backend</code></td><td>backend local sin Docker (Ollama en localhost)</td></tr>
+          <tr><td><code>make lint</code> / <code>make format</code></td><td>ruff check / format</td></tr>
+          <tr><td><code>make test</code></td><td>pytest</td></tr>
+          <tr><td><code>make logs</code></td><td>logs del backend</td></tr>
+        </table>
+
+        <h2>Variables de entorno</h2>
+        <table>
+          <tr><th>Variable</th><th>Default</th><th>Descripción</th></tr>
+          <tr><td><code>OLLAMA_HOST</code></td><td><code>http://localhost:11434</code></td><td>URL del servidor Ollama</td></tr>
+          <tr><td><code>DATA_DIR</code></td><td><code>./backend/data</code></td><td>directorio de la base SQLite</td></tr>
+        </table>
+
+        <h2>Tests</h2>
+        <p>En <code>backend/tests/</code>. Los nodos/funciones puras se testean sin levantar el
+          WebSocket (state dict → resultado). Config en <code>pyproject.toml</code>
+          (<code>pythonpath = ["backend"]</code>, <code>asyncio_mode = "auto"</code>).</p>
+        <pre class="code">pytest                      # corre todo
+pytest backend/tests/test_router_and_edges.py -q</pre>
+
+        <h2>Devcontainer</h2>
+        <p>El proyecto incluye <code>.devcontainer/</code>. Ollama corre en el host y el container se
+          conecta por <code>host.docker.internal</code>. Ver <a href="guides/devcontainer.md">guides/devcontainer.md</a>.</p>
+
+        <h2>Guías detalladas</h2>
+        <ul>
+          <li><a href="guides/git-workflow.md">Git workflow y estrategia de ramas</a></li>
+          <li><a href="guides/pyproject-y-ruff.md">pyproject.toml y ruff</a></li>
+          <li><a href="guides/env-example.md">.env y .env.example</a></li>
+          <li><a href="guides/devcontainer.md">Devcontainer</a></li>
+          <li><a href="contributing.md">Cómo contribuir</a></li>
+        </ul>
+      </section>
+
+      <!-- ============ ADRs ============ -->
+      <section class="doc-section" id="adrs">
+        <h1>Decisiones de arquitectura (ADR)</h1>
+        <div class="card accent">
+          <h3>ADR 001 — LangGraph para orquestación</h3>
+          <p>El debate tiene fases secuenciales con lógica condicional y puede cortarse en
+            cualquier momento. <strong>LangGraph (<code>StateGraph</code>)</strong> hace las bifurcaciones
+            declarativas y el estado fluye solo entre nodos. Costo: una dependencia externa y una
+            curva de aprendizaje. <a href="adr/001-langgraph.md">Leer ADR →</a></p>
+        </div>
+        <div class="card accent">
+          <h3>ADR 002 — asyncio.Queue como bridge WS ↔ grafo</h3>
+          <p>Una <code>asyncio.Queue</code> desacopla el grafo del WebSocket: backpressure, cancelación
+            limpia y nodos testeables sin socket. El sentinel
+            <code>{"__sentinel__":"end"}</code> marca el fin del stream.
+            <a href="adr/002-ws-queue.md">Leer ADR →</a></p>
+        </div>
+      </section>
+
+      <!-- ============ ROADMAP ============ -->
+      <section class="doc-section" id="roadmap">
+        <h1>Roadmap</h1>
+        <p>El proyecto es un sandbox de aprendizaje de LangGraph; el detalle está en
+          <code>notas/planes.md</code>. Líneas de exploración:</p>
+        <div class="grid cols-2">
+          <div class="card"><h3>B1 · Memoria cross-debate</h3><p>El scout lee debates anteriores del mismo tema (memory store de LangGraph).</p></div>
+          <div class="card"><h3>B2 · RAG</h3><p>Vectorizar documentos y recuperarlos por similitud antes del debate.</p></div>
+          <div class="card"><h3>B3 · Humano en el loop</h3><p>Un nodo que pausa y espera input del usuario (<code>interrupt()</code>).</p></div>
+          <div class="card"><h3>B5 · Streaming nativo</h3><p>Reemplazar el bridge ad-hoc por <code>.astream_events()</code> de LangGraph.</p></div>
+          <div class="card"><h3>C · Observabilidad</h3><p>LangSmith o tracing propio sobre la tabla <code>events</code>.</p></div>
+          <div class="card"><h3>D · Modo torneo</h3><p>Varios debates con distintas combinaciones; orquestador de orquestadores.</p></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    // ---- Mermaid (lazy render por sección) ----
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        fontFamily: 'VT323, monospace',
+        fontSize: '18px',
+        primaryColor: '#1a0e05',
+        primaryBorderColor: '#c8923a',
+        primaryTextColor: '#f0d090',
+        lineColor: '#c8923a',
+        secondaryColor: '#180e2e',
+        tertiaryColor: '#0a0616',
+      }
+    });
+
+    async function renderDiagramsIn(section){
+      const blocks = section.querySelectorAll('.mermaid:not([data-done])');
+      for (const el of blocks){
+        try{
+          el.setAttribute('data-done','1');
+          const src = el.textContent.trim();
+          const id = 'mmd-' + Math.floor(performance.now()) + '-' + Math.random().toString(36).slice(2,7);
+          const { svg } = await mermaid.render(id, src);
+          el.innerHTML = svg;
+        }catch(e){
+          el.innerHTML = '<span style="color:#ff8a6a">Error en diagrama: ' + e.message + '</span>';
+        }
+      }
+    }
+
+    // ---- Navegación SPA por hash ----
+    const sections = document.querySelectorAll('.doc-section');
+    const links = document.querySelectorAll('#nav a');
+    const crumb = document.getElementById('crumb');
+
+    function show(id){
+      const target = document.getElementById(id) || document.getElementById('inicio');
+      sections.forEach(s => s.classList.toggle('active', s === target));
+      links.forEach(a => a.classList.toggle('active', a.dataset.section === target.id));
+      const label = [...links].find(a => a.dataset.section === target.id);
+      crumb.textContent = '▸ ' + (label ? label.textContent.replace(/^▸\s*/,'').toUpperCase() : 'INICIO');
+      renderDiagramsIn(target);
+      document.querySelector('main').scrollTo({ top: 0 });
+      window.scrollTo({ top: 0 });
+    }
+
+    document.addEventListener('click', (ev) => {
+      const a = ev.target.closest('[data-section],[data-jump]');
+      if (!a) return;
+      const id = a.dataset.section || a.dataset.jump;
+      if (!id) return;
+      ev.preventDefault();
+      if (location.hash !== '#' + id) location.hash = id; else show(id);
+    });
+
+    window.addEventListener('hashchange', () => show(location.hash.slice(1)));
+    show(location.hash.slice(1) || 'inicio');
+  </script>
+</body>
+</html>

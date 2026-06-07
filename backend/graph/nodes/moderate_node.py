@@ -1,14 +1,14 @@
 """
 MODERATE_NODE: corre despues de cada SPEAK_NODE.
 
-EvaluÃ¡ el ultimo turno con el ModeratorAgent (8 dimensiones + flag de intervencion),
+Evaluá el ultimo turno con el ModeratorAgent (8 dimensiones + flag de intervencion),
 calcula el score total ponderado, actualiza cumulative_scores y persiste.
 
 Etapa 6: si el moderador detecta que se necesita intervencion, solo emitimos
-un evento `warning` â la intervencion como tercer hablante llega en Etapa 7.
+un evento `warning` — la intervencion como tercer hablante llega en Etapa 7.
 
-DegradaciÃ³n elegante: si el moderador falla/timeoutea, se usa un score neutro
-(todas las dimensiones en 0.5 â total ~0.55) y el debate continua sin warning.
+Degradación elegante: si el moderador falla/timeoutea, se usa un score neutro
+(todas las dimensiones en 0.5 — total ~0.55) y el debate continua sin warning.
 """
 
 from __future__ import annotations
@@ -19,10 +19,10 @@ import time
 import uuid
 from typing import Any
 
+import config as app_config
 from langchain_core.runnables import RunnableConfig
 
-import config as app_config
-from agents.moderator_agent import ModeratorAgent, ModeratorEvaluation, compute_total
+from agents.moderator_agent import ModeratorAgent, ModeratorEvaluation
 from graph.state import DebateState, ModeratorIntervention
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ def _decide_intervention(
     """
     thresholds = app_config.MODERATION_THRESHOLDS
 
-    # 1. thresholds duros â disparan siempre
+    # 1. thresholds duros — disparan siempre
     if score.get("hallucination_risk", 0.0) > thresholds.get("hallucination_risk", 1.1):
         return True, "hallucination", "correction"
     if score.get("repetition_penalty", 0.0) > thresholds.get("repetition_penalty", 1.1):
@@ -90,6 +90,8 @@ def _last_opponent_text(state: DebateState, agent_id: str) -> str | None:
 async def moderate_node(state: DebateState, config: RunnableConfig) -> dict[str, Any]:
     configurable = config.get("configurable", {}) if config else {}
     ws_queue: asyncio.Queue | None = configurable.get("ws_queue")
+    if ws_queue is not None:
+        await ws_queue.put({"type": "node_active", "node": "moderate"})
     stop_event: asyncio.Event | None = configurable.get("stop_event")
     repo = configurable.get("repo")
     debate_id = configurable.get("debate_id") or state.get("debate_id")
@@ -142,7 +144,7 @@ async def moderate_node(state: DebateState, config: RunnableConfig) -> dict[str,
             ),
             timeout=_MODERATE_TIMEOUT,
         )
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("moderator timed out for turn %s", turn_number)
         evaluation = ModeratorEvaluation.neutral()
     except Exception:

@@ -6,7 +6,7 @@ mediante una llamada LLM con format=json. El plan se guarda en
 state["current_plan"] y lo lee SPEAK_NODE para inyectarlo como contexto
 privado.
 
-DegradaciÃ³n elegante:
+Degradación elegante:
   - Si planning falla o timeoutea, current_plan = None y el SPEAK corre sin plan.
   - Eventos WS: agent_planning {phase: "start"|"end"}. El plan en si NO se emite.
 """
@@ -20,7 +20,6 @@ from typing import Any
 
 from langchain_core.runnables import RunnableConfig
 
-import config as app_config
 from agents.debater_agent import AgentPlanModel, plan_for_turn
 from agents.personas import PERSONAS
 from graph.state import DebateState
@@ -54,6 +53,8 @@ def _last_texts(state: DebateState, agent_id: str) -> tuple[str | None, str | No
 async def plan_node(state: DebateState, config: RunnableConfig) -> dict[str, Any]:
     configurable = config.get("configurable", {}) if config else {}
     ws_queue: asyncio.Queue | None = configurable.get("ws_queue")
+    if ws_queue is not None:
+        await ws_queue.put({"type": "node_active", "node": "plan"})
     stop_event: asyncio.Event | None = configurable.get("stop_event")
 
     if stop_event and stop_event.is_set():
@@ -86,7 +87,7 @@ async def plan_node(state: DebateState, config: RunnableConfig) -> dict[str, Any
             ),
             timeout=_PLAN_TIMEOUT,
         )
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("plan timed out for agent=%s turn=%s", agent_id, turn_number)
         plan = AgentPlanModel.empty()
     except Exception:

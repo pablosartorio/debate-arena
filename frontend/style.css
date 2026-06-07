@@ -915,11 +915,6 @@ button:disabled { opacity: 0.35; cursor: not-allowed; }
   z-index: 10;
 }
 
-/* ---------- Hide leftover farm/space artifacts ---------- */
-.sky-deco, .ground, .ground-line, .mountain,
-.scene, .tree, .tree-row, .house, .house-body, .house-window,
-.house-door, .grass-strip, .path, .fence, .bush, .vs-banner { display: none !important; }
-
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .character { width: 60px; height: 80px; }
@@ -945,4 +940,180 @@ button:disabled { opacity: 0.35; cursor: not-allowed; }
   #col-agent1 { left: 28%; }
   #col-agent2 { left: 72%; }
   #topic { min-width: 140px; }
+}
+
+/* ---------- Graph panel ---------- */
+.graph-card {
+  width: min(860px, 94vw);
+  max-height: 88vh;
+}
+
+#graph-mermaid {
+  overflow: auto;
+  margin-top: 10px;
+  background: #0e0b16;
+  border: 2px solid #3a2a18;
+  padding: 14px;
+  min-height: 0;
+  font-family: var(--dialogue);
+  font-size: 18px;
+  color: #d9a558;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* SVG scales to fit the panel so the whole graph is visible (no giant empty box) */
+#graph-mermaid svg {
+  background: transparent !important;
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  max-height: 72vh;
+  min-width: 0 !important;
+}
+
+/* Node labels — pixel-era font, crisp */
+#graph-mermaid .nodeLabel,
+#graph-mermaid .nodeLabel span,
+#graph-mermaid .nodeLabel p {
+  font-family: var(--dialogue) !important;
+  font-size: 20px !important;
+  letter-spacing: .5px;
+}
+
+/* Edge labels — legible little pills instead of grey noise */
+#graph-mermaid .edgeLabel,
+#graph-mermaid .edgeLabel span,
+#graph-mermaid .edgeLabel p {
+  font-family: var(--dialogue) !important;
+  font-size: 15px !important;
+  line-height: 1.1 !important;
+  color: #ffe7a0 !important;
+  background-color: #241608 !important;
+  padding: 1px 7px !important;
+  border-radius: 4px;
+}
+#graph-mermaid .edgeLabel rect { fill: #241608 !important; opacity: 1 !important; }
+
+/* Active and visited states are applied via JS inline styles;
+   these classes are kept as hooks for potential future CSS animations */
+#graph-mermaid .node.node-active .nodeLabel,
+#graph-mermaid .node.node-active text {
+  color: #fff !important;
+  fill: #fff !important;
+}
+#graph-mermaid .node.node-visited .nodeLabel,
+#graph-mermaid .node.node-visited text {
+  color: #c0eec0 !important;
+  fill: #c0eec0 !important;
+}
+/* =========================================================
+   PHOTO-ACCURATE ROOM  (overrides the CSS-drawn scene)
+   The room is the uploaded pixel-art image; only the live
+   debate elements float on top, aligned to the painted cast.
+   ========================================================= */
+
+/* Arena = available area; container-type lets .stage size itself
+   relative to the arena ("contain" math, pure CSS). */
+.arena{
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  container-type: size;
+  background: #160f08;            /* wood-toned letterbox, matches image edges */
+}
+
+/* Stage = the image, locked to its native aspect (2702x1536), scaled to the
+   largest box that fits the arena with no crop/distortion, centered.
+   Also the positioning + sizing context for every overlay. */
+.stage{
+  position: relative;
+  inset: auto;
+  aspect-ratio: 2702 / 1346;
+  width: min(100cqw, calc(100cqh * 2.0074));
+  height: auto;
+  z-index: 1;
+  pointer-events: none;
+  background: url("room-bg.png") center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+  box-shadow: 0 0 0 2px #0d0904, 0 12px 34px rgba(0,0,0,.55);
+  container-type: size;
+  container-name: stage;
+}
+
+/* The image already contains the whole room + cast → hide the CSS art */
+.wall, .floor, .window-frame, .clock, .painting, .plant,
+.back-desk, .rug, .round-table,
+.character { display: none !important; }
+
+/* Slots become layout-transparent so their children pin to .stage */
+.agent-slot{ display: contents; }
+
+/* ---- Speech bubbles: caret tips just above each painted head ---- */
+#bubble-agent1, #bubble-agent2, #bubble-moderator{
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+  pointer-events: auto;
+  z-index: 5;
+}
+#bubble-agent1   { left: 34.5%; bottom: 34.2%; width: clamp(180px, 30cqw, 480px); }
+#bubble-agent2   { left: 68.5%; bottom: 34.2%; width: clamp(180px, 30cqw, 480px); }
+#bubble-moderator{ left: 50.4%; bottom: 62.8%; width: clamp(150px, 24cqw, 380px); z-index: 7; }
+
+.bubble{
+  font-size: clamp(13px, 2.6cqw, 23px);
+  line-height: 1.2;
+  max-height: 63cqh;                 /* grows up to fill the room; fits full messages */
+  padding: 0.7em 0.95em 0.85em;
+  border-width: 3px;
+}
+#bubble-moderator .bubble{ font-size: clamp(12px, 2.1cqw, 19px); max-height: 36cqh; }
+
+/* ---- Live status + score chip (name/role come from the artwork) ---- */
+.agent-plate{
+  background: transparent; border: 0; box-shadow: none;
+  padding: 0; min-width: 0; gap: 1px;
+}
+.agent-name, .agent-role{               /* keep in DOM for app.js, hide visually */
+  position: absolute !important;
+  width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+.agent-status, .agent-score{
+  min-height: 0;
+  text-shadow: 0 1px 0 #000, 1px 1px 2px #000, 0 0 5px #000;
+}
+.agent-status{
+  font-family: var(--dialogue);
+  font-size: clamp(11px, 1.8cqw, 16px);
+  color: #ffe7a0; letter-spacing: .5px;
+}
+.agent-score{
+  font-family: var(--pixel);
+  font-size: clamp(8px, 1.2cqw, 11px); letter-spacing: .5px;
+}
+
+.plate-agent1, .plate-agent2, .plate-moderator{
+  position: absolute;
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+  z-index: 6;
+}
+.plate-agent1   { left: 34.5%; bottom: 16.9%; }   /* above VALENTINA nameplate */
+.plate-agent2   { left: 68.5%; bottom: 16.2%; }   /* above BRUNO nameplate     */
+.plate-moderator{ left: 50.4%; bottom: 47.4%; }   /* by the moderator's desk   */
+
+/* beat the original (higher-specificity) moderator rules from earlier in the file */
+#col-moderator .bubble-anchor{ width: clamp(150px, 24cqw, 380px); }
+#col-moderator .agent-plate{ transform: translateX(-50%); }
+
+/* keep overlays sensible on very small viewports */
+@media (max-width: 600px){
+  .agent-status{ font-size: 11px; }
+  .agent-score { font-size: 8px; }
 }

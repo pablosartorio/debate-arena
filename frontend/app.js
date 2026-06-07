@@ -1,7 +1,7 @@
 /* =========================================================
    DEBATE ARENA — pixel-art front end
-   - Builds two SVG pixel characters (Valentina / Bruno)
-   - Animates them while their tokens stream in
+   - Live debate over WebSocket on a static pixel-art room (room-bg.png)
+   - Streams tokens into speech bubbles anchored over the painted cast
    - Keeps the original WebSocket / REST contract untouched
    ========================================================= */
 
@@ -15,221 +15,12 @@ const state = {
   agentMap: null,
 };
 
-/* =========================================================
-   PIXEL CHARACTER BUILDER
-   16 x 24 logical pixels, rendered as SVG <rect>s.
-   Parts are grouped so CSS can animate them independently.
-   ========================================================= */
-
-const PALETTES = {
-  moderator: {
-    hair: "#3a2818", hairHi: "#5a3418",
-    skin: "#f0c090", skinDk: "#c89868",
-    eye: "#1a1226", brow: "#3a2818", mouth: "#5a1a14",
-    shirt: "#d9a558", shirtDk: "#8a5e22",
-    pants: "#3a2818", pantsDk: "#1a1008",
-    belt: "#1a0a05", boot: "#1a0a05",
-    accent: "#2f6a1a",
-  },
-  maximo: {
-    hair:    "#1a0f0a",
-    hairHi:  "#3a2818",
-    skin:    "#f0c090",
-    skinDk:  "#c89868",
-    eye:     "#1a1226",
-    brow:    "#1a0f0a",
-    mouth:   "#5a1a14",
-    shirt:   "#c0392b",
-    shirtDk: "#8a1f15",
-    pants:   "#2c3e60",
-    pantsDk: "#1a2848",
-    belt:    "#1a0a05",
-    boot:    "#1a0a05",
-    accent:  "#f0c060", // bandana / armband
-  },
-  libertad: {
-    hair:    "#e8c060",
-    hairHi:  "#fbe098",
-    skin:    "#f0c090",
-    skinDk:  "#c89868",
-    eye:     "#1a1226",
-    brow:    "#8a6020",
-    mouth:   "#5a1a14",
-    shirt:   "#2980b9",
-    shirtDk: "#1a5a90",
-    pants:   "#1a2438",
-    pantsDk: "#0a121f",
-    belt:    "#1a0a05",
-    boot:    "#1a0a05",
-    accent:  "#c0392b", // tie
-  },
-  valentina: {
-    hair:    "#2a1240",
-    hairHi:  "#4a2068",
-    skin:    "#f5cba0",
-    skinDk:  "#cfa078",
-    eye:     "#1a1226",
-    brow:    "#2a1240",
-    mouth:   "#5a1a14",
-    shirt:   "#7c3aed", // violeta eléctrico
-    shirtDk: "#4a1f9e",
-    pants:   "#1a1226",
-    pantsDk: "#0a0612",
-    belt:    "#1a0a05",
-    boot:    "#1a0a05",
-    accent:  "#22d3ee", // cyan tech
-  },
-  bruno: {
-    hair:    "#2a1808",
-    hairHi:  "#4a2818",
-    skin:    "#e8b878",
-    skinDk:  "#c08858",
-    eye:     "#1a1226",
-    brow:    "#2a1808",
-    mouth:   "#5a1a14",
-    shirt:   "#059669", // verde bosque
-    shirtDk: "#03704c",
-    pants:   "#1a2818",
-    pantsDk: "#0a1408",
-    belt:    "#1a0a05",
-    boot:    "#1a0a05",
-    accent:  "#fbbf24", // dorado cálido
-  },
+const graphState = {
+  rendered: false,
+  activeNode: null,
+  visitedNodes: new Set(),
+  nodeEls: {},
 };
-
-/**
- * Build the SVG markup for a character.
- * The viewBox is 16x26; a leg/foot row reaches y=25.
- */
-function buildCharacterSVG(p, kind) {
-  // helper to emit a colored rect
-  const r = (x, y, w, h, fill) =>
-    `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`;
-
-  // ----- HEAD GROUP -----
-  let head = "";
-  // hair back / cap shape
-  head += r(4, 0, 8, 1, p.hair);
-  head += r(3, 1, 10, 2, p.hair);
-  // hair highlight strand
-  head += r(5, 1, 2, 1, p.hairHi);
-  if (kind === "libertad") head += r(10, 2, 2, 1, p.hairHi);
-
-  // face base
-  head += r(4, 3, 8, 4, p.skin);
-  // ear shadows
-  head += r(3, 4, 1, 2, p.skinDk);
-  head += r(12, 4, 1, 2, p.skinDk);
-  // jaw / chin shadow
-  head += r(4, 7, 8, 1, p.skinDk);
-
-  // hair fringe
-  if (kind === "maximo") {
-    head += r(4, 3, 4, 1, p.hair);   // left side bang
-    head += r(10, 3, 2, 1, p.hair);
-  } else {
-    head += r(4, 3, 3, 1, p.hair);   // combed-over bang
-    head += r(11, 3, 1, 1, p.hair);
-  }
-
-  // eyebrows
-  head += r(5, 4, 2, 1, p.brow);
-  head += r(9, 4, 2, 1, p.brow);
-
-  // eyes
-  head += r(6, 5, 1, 1, p.eye);
-  head += r(9, 5, 1, 1, p.eye);
-
-  // nose dot
-  head += r(8, 6, 1, 1, p.skinDk);
-
-  // mouth (animated)
-  const mouth =
-    `<rect class="mouth" x="7" y="7" width="2" height="2" fill="${p.mouth}"/>`;
-
-  // neck
-  head += r(7, 8, 2, 1, p.skinDk);
-
-  // ----- BODY (shirt / suit) -----
-  let body = "";
-  body += r(4, 9, 8, 5, p.shirt);
-  // shirt shadow underline
-  body += r(4, 13, 8, 1, p.shirtDk);
-  // belt
-  body += r(4, 14, 8, 1, p.belt);
-
-  if (kind === "maximo") {
-    // bandana / armband on chest
-    body += r(4, 10, 8, 1, p.accent);
-  } else {
-    // collar V
-    body += r(7, 9, 1, 1, "#fff");
-    body += r(8, 9, 1, 1, "#fff");
-    // tie
-    body += r(7, 10, 2, 3, p.accent);
-    body += r(7, 13, 2, 1, "#8a1f15");
-  }
-
-  // ----- LEFT ARM (anatomical right — appears on viewer's left) -----
-  // Group separately for rotation
-  const armL =
-    r(3, 9, 1, 4, p.shirt) +
-    r(3, 12, 1, 1, p.shirtDk) +
-    r(3, 13, 1, 1, p.skin);     // hand
-
-  // ----- RIGHT ARM -----
-  // For Máximo: raised fist (slightly higher hand). For Libertad: pointing up.
-  let armR = "";
-  if (kind === "maximo") {
-    armR += r(12, 9, 1, 4, p.shirt);
-    armR += r(12, 12, 1, 1, p.shirtDk);
-    armR += r(12, 13, 1, 1, p.skin); // hand
-  } else {
-    armR += r(12, 9, 1, 4, p.shirt);
-    armR += r(12, 12, 1, 1, p.shirtDk);
-    armR += r(12, 13, 1, 1, p.skin);
-  }
-
-  // ----- LEGS / FEET -----
-  let legs = "";
-  legs += r(4, 15, 3, 6, p.pants);
-  legs += r(9, 15, 3, 6, p.pants);
-  // pants shadow
-  legs += r(4, 20, 3, 1, p.pantsDk);
-  legs += r(9, 20, 3, 1, p.pantsDk);
-  // boots
-  legs += r(3, 21, 4, 2, p.boot);
-  legs += r(9, 21, 4, 2, p.boot);
-  // boot highlight
-  legs += r(3, 21, 4, 1, "#3a2418");
-  legs += r(9, 21, 4, 1, "#3a2418");
-
-  return `
-    <svg class="character-svg" viewBox="0 0 16 24"
-         xmlns="http://www.w3.org/2000/svg"
-         shape-rendering="crispEdges"
-         preserveAspectRatio="xMidYMax meet">
-      <g class="legs">${legs}</g>
-      <g class="arm-l">${armL}</g>
-      <g class="body">${body}</g>
-      <g class="head">
-        ${head}
-        ${mouth}
-      </g>
-      <g class="arm-r">${armR}</g>
-    </svg>
-  `;
-}
-
-function mountCharacters() {
-  const c1 = document.getElementById("char-agent1");
-  const c2 = document.getElementById("char-agent2");
-  const cm = document.getElementById("char-moderator");
-  // 2do arg: pose-kind (puño / dedo / neutral). Reusamos las poses heredadas.
-  if (c1) c1.innerHTML = buildCharacterSVG(PALETTES.valentina, "maximo");
-  if (c2) c2.innerHTML = buildCharacterSVG(PALETTES.bruno, "libertad");
-  if (cm) cm.innerHTML = buildCharacterSVG(PALETTES.moderator, "moderator");
-}
 
 /* =========================================================
    DOM refs
@@ -529,6 +320,16 @@ function handleMessage(msg) {
       break;
     }
 
+    case "node_active": {
+      graphState.activeNode = msg.node;
+      graphState.visitedNodes.add(msg.node);
+      const gp = document.getElementById("graph-panel");
+      if (gp && !gp.classList.contains("hidden") && graphState.rendered) {
+        applyGraphHighlights();
+      }
+      break;
+    }
+
     case "error": {
       setStatus(`Error: ${msg.message}`);
       setRunning(false);
@@ -539,9 +340,135 @@ function handleMessage(msg) {
 }
 
 /* =========================================================
+   Graph panel
+   ========================================================= */
+function buildNodeIndex() {
+  graphState.nodeEls = {};
+  document.querySelectorAll("#graph-mermaid g.node").forEach(el => {
+    const id = el.getAttribute("id") || "";
+    let name = "";
+    // Mermaid ≥10 generates IDs like "flowchart-scout-0" or "L-scout-0"
+    const m = id.match(/(?:flowchart-|L-)([a-zA-Z_][a-zA-Z0-9_]*)-\d+/);
+    if (m) {
+      name = m[1].toLowerCase();
+    } else {
+      const textEl = el.querySelector("span, foreignObject span, text, p");
+      name = (textEl?.textContent || "").trim().toLowerCase().replace(/\s+/g, "_");
+    }
+    if (name && !name.startsWith("__")) {
+      graphState.nodeEls[name] = el;
+    }
+  });
+}
+
+function _nodeShapes(el) {
+  return el.querySelectorAll("rect, circle, polygon, path.basic");
+}
+
+function _resetNodeShapes(el) {
+  _nodeShapes(el).forEach(s => {
+    s.style.removeProperty("fill");
+    s.style.removeProperty("stroke");
+    s.style.removeProperty("stroke-width");
+    s.style.removeProperty("filter");
+  });
+}
+
+function _paintNode(el, type) {
+  _nodeShapes(el).forEach(s => {
+    if (type === "active") {
+      s.style.setProperty("fill", "#5a3418", "important");
+      s.style.setProperty("stroke", "#f0c060", "important");
+      s.style.setProperty("stroke-width", "3px", "important");
+      s.style.setProperty("filter", "drop-shadow(0 0 8px #f0c060bb)", "important");
+    } else {
+      s.style.setProperty("fill", "#071207", "important");
+      s.style.setProperty("stroke", "#5fcf6f", "important");
+      s.style.setProperty("stroke-width", "2px", "important");
+    }
+  });
+}
+
+function applyGraphHighlights() {
+  Object.values(graphState.nodeEls).forEach(el => {
+    el.classList.remove("node-active", "node-visited");
+    _resetNodeShapes(el);
+  });
+  graphState.visitedNodes.forEach(name => {
+    if (name !== graphState.activeNode) {
+      const el = graphState.nodeEls[name];
+      if (el) { el.classList.add("node-visited"); _paintNode(el, "visited"); }
+    }
+  });
+  if (graphState.activeNode) {
+    const el = graphState.nodeEls[graphState.activeNode];
+    if (el) { el.classList.add("node-active"); _paintNode(el, "active"); }
+  }
+}
+
+async function openGraphPanel() {
+  const panel = document.getElementById("graph-panel");
+  if (!panel) return;
+  panel.classList.remove("hidden");
+  panel.setAttribute("aria-hidden", "false");
+
+  if (graphState.rendered) {
+    applyGraphHighlights();
+    return;
+  }
+
+  const container = document.getElementById("graph-mermaid");
+  container.textContent = "Cargando...";
+
+  try {
+    const res = await fetch("/api/graph/diagram");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const { mermaid: mermaidText } = await res.json();
+
+    // Layout direction: "LR" = horizontal (recommended), "TD" = vertical (original).
+    // Change this single value to switch back to the vertical layout.
+    const GRAPH_DIR = "LR";
+    const orientedText = mermaidText.replace(
+      /((?:flowchart|graph)\s+)(TB|TD|BT|RL|LR)/i, `$1${GRAPH_DIR}`
+    );
+
+    // theme is embedded in the mermaid text via %%{init}%% — js config is just fallback
+    mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+    const { svg } = await mermaid.render("debate-flow-graph", orientedText);
+    container.innerHTML = svg;
+
+    // make the SVG fill the container width instead of being fixed-pixel
+    const svgEl = container.querySelector("svg");
+    if (svgEl) {
+      svgEl.setAttribute("width", "100%");
+      svgEl.removeAttribute("height");
+      svgEl.style.display = "block";
+    }
+
+    graphState.rendered = true;
+    buildNodeIndex();
+    applyGraphHighlights();
+  } catch (e) {
+    container.innerHTML = `<span style="color:#ff8a6a">Error: ${e.message}</span>`;
+  }
+}
+
+function hideGraphPanel() {
+  const panel = document.getElementById("graph-panel");
+  if (panel) {
+    panel.classList.add("hidden");
+    panel.setAttribute("aria-hidden", "true");
+  }
+}
+
+/* =========================================================
    Start / Stop
    ========================================================= */
 function startDebate() {
+  graphState.activeNode = null;
+  graphState.visitedNodes.clear();
+  if (graphState.rendered) applyGraphHighlights();
   clearArena();
   hideSummaryPanel();
 
@@ -944,15 +871,25 @@ if (summaryPanelEl) summaryPanelEl.addEventListener("click", (ev) => {
   // click en el backdrop (no dentro de la card) cierra el panel
   if (ev.target === summaryPanelEl) hideSummaryPanel();
 });
+
+const btnGraph = document.getElementById("btn-graph");
+if (btnGraph) btnGraph.addEventListener("click", openGraphPanel);
+const graphCloseBtn = document.getElementById("graph-close");
+if (graphCloseBtn) graphCloseBtn.addEventListener("click", hideGraphPanel);
+const graphPanelEl = document.getElementById("graph-panel");
+if (graphPanelEl) graphPanelEl.addEventListener("click", (ev) => {
+  if (ev.target === graphPanelEl) hideGraphPanel();
+});
+
 document.addEventListener("keydown", (ev) => {
   if (ev.key === "Escape") {
     hideSummaryPanel();
     hideHistory();
     hideDetail();
+    hideGraphPanel();
   }
 });
 
-mountCharacters();
 loadModels();
 setStatus("Listo para debatir.");
 

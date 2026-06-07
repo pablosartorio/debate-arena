@@ -10,7 +10,7 @@ Flujo:
   3. Persiste la intervencion completa en `interventions`
   4. Limpia pending_intervention para que el siguiente turno corra normal
 
-DegradaciÃ³n elegante: si el speak_intervention falla/timeoutea, persistimos
+Degradación elegante: si el speak_intervention falla/timeoutea, persistimos
 el mensaje original (notes del LLM) y el debate continua.
 """
 
@@ -36,6 +36,8 @@ _INTERVENE_TIMEOUT = 60.0
 async def intervene_node(state: DebateState, config: RunnableConfig) -> dict[str, Any]:
     configurable = config.get("configurable", {}) if config else {}
     ws_queue: asyncio.Queue | None = configurable.get("ws_queue")
+    if ws_queue is not None:
+        await ws_queue.put({"type": "node_active", "node": "intervene"})
     stop_event: asyncio.Event | None = configurable.get("stop_event")
     repo = configurable.get("repo")
     debate_id = configurable.get("debate_id") or state.get("debate_id")
@@ -98,7 +100,7 @@ async def intervene_node(state: DebateState, config: RunnableConfig) -> dict[str
 
     try:
         await asyncio.wait_for(_run_stream(), timeout=_INTERVENE_TIMEOUT)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("intervention stream timed out for turn %s", turn_number)
     except Exception:
         logger.exception("intervention failed for turn %s", turn_number)

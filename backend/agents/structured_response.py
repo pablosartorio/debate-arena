@@ -14,7 +14,8 @@ from __future__ import annotations
 import json
 import logging
 import re
-from typing import Callable, Type, TypeVar
+from collections.abc import Callable
+from typing import TypeVar
 
 from pydantic import BaseModel, ValidationError
 
@@ -64,7 +65,7 @@ def _extract_json(text: str) -> str | None:
 
 def parse_structured_response(
     raw: str,
-    model_cls: Type[T],
+    model_cls: type[T],
     default_factory: Callable[[], T],
     *,
     context: str = "",

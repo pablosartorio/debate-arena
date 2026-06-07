@@ -108,3 +108,9 @@ class DebateRepository(ABC):
 
     @abstractmethod
     async def get_debate_interventions(self, debate_id: str) -> list[dict[str, Any]]: ...
+
+    @abstractmethod
+    async def get_debate_tool_calls(self, debate_id: str) -> list[dict[str, Any]]: ...
+
+    @abstractmethod
+    async def get_debate_full(self, debate_id: str) -> dict[str, Any] | None: ...

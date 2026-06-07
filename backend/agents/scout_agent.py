@@ -11,13 +11,12 @@ Etapa 4: el scout solo usa el LLM (sin web search). Etapa 9 sumara tools.
 
 from __future__ import annotations
 
-import json
 import logging
 
+import config
 import httpx
 from pydantic import BaseModel, Field
 
-import config
 from agents.structured_response import parse_structured_response
 
 logger = logging.getLogger(__name__)
@@ -33,7 +32,7 @@ class ScoutResultModel(BaseModel):
     context_summary: str = ""
 
     @classmethod
-    def empty(cls) -> "ScoutResultModel":
+    def empty(cls) -> ScoutResultModel:
         return cls()
 
 
@@ -57,7 +56,9 @@ def _user_prompt(topic: str, web_evidence: str | None = None) -> str:
         "Devolve SOLO un JSON con estas claves (sin texto extra, sin markdown):\n"
         '{\n'
         '  "key_concepts": [3 conceptos centrales, frases cortas],\n'
+        '  "guiding_questions": [2 preguntas que un buen debate sobre el tema debería responder],\n'
         '  "misinformation_risks": [2 afirmaciones exageradas comunes a evitar],\n'
+        '  "evaluation_criteria": [2-3 criterios concretos para juzgar si un turno es bueno en este tema],\n'
         '  "context_summary": "1-2 oraciones de contexto factual neutro"\n'
         '}\n'
         "En español rioplatense. Sé breve."

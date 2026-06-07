@@ -1,7 +1,7 @@
 """
 SCOUT_NODE: corre 1 sola vez antes del turno 1.
 
-DegradaciÃ³n elegante: si scouting_done ya esta True, o enable_scouting es False,
+Degradación elegante: si scouting_done ya esta True, o enable_scouting es False,
 o el scout falla/timeoutea, el grafo continua sin contexto extra y el debate
 funciona como en Etapa 1.
 """
@@ -14,9 +14,9 @@ import time
 import uuid
 from typing import Any
 
+import config as app_config
 from langchain_core.runnables import RunnableConfig
 
-import config as app_config
 from agents.scout_agent import ScoutAgent, ScoutResultModel
 from graph.state import DebateState
 from tools.base import ToolInput
@@ -84,6 +84,8 @@ async def _try_web_search(
 async def scout_node(state: DebateState, config: RunnableConfig) -> dict[str, Any]:
     configurable = config.get("configurable", {}) if config else {}
     ws_queue: asyncio.Queue | None = configurable.get("ws_queue")
+    if ws_queue is not None:
+        await ws_queue.put({"type": "node_active", "node": "scout"})
     repo = configurable.get("repo")
     debate_id = configurable.get("debate_id") or state.get("debate_id")
 
@@ -102,7 +104,7 @@ async def scout_node(state: DebateState, config: RunnableConfig) -> dict[str, An
     started = time.perf_counter()
 
     # Si tools estan habilitadas, intentamos web_search ANTES del LLM.
-    # Si falla, el scout corre sin evidencia â degradacion elegante.
+    # Si falla, el scout corre sin evidencia — degradacion elegante.
     web_evidence: str | None = None
     sources: list[str] = []
     if state.get("enable_tools"):
@@ -123,7 +125,7 @@ async def scout_node(state: DebateState, config: RunnableConfig) -> dict[str, An
             scout.analyze(topic, web_evidence=web_evidence, sources=sources),
             timeout=app_config.SCOUTING_TIMEOUT_SECONDS,
         )
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("scout timed out after %.1fs", app_config.SCOUTING_TIMEOUT_SECONDS)
         result = ScoutResultModel.empty()
     except Exception:

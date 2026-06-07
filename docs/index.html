@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Debate Arena — dos IA debaten, un tercero modera</title>
+  <meta name="description" content="Sistema de debate automático entre agentes de IA con interfaz pixel-art. Dos agentes con posturas opuestas debaten en vivo, orquestados con LangGraph y moderados por un tercer agente que evalúa cada turno." />
+  <meta property="og:title" content="◆ DEBATE ARENA ◆" />
+  <meta property="og:description" content="Dos IA debaten en tiempo real. Un tercer agente modera, evalúa e interviene. FastAPI · LangGraph · Ollama, con estética pixel-art." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://pablosartorio.github.io/debate-arena/room-bg.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:        #0a0a1f;
+      --panel:     #2a1a10;
+      --panel-2:   #1a1008;
+      --panel-3:   #160f08;
+      --ink:       #2a1a10;
+      --paper:     #f8f0d0;
+      --gold:      #f0c060;
+      --gold-dk:   #d9a558;
+      --green:     #5fcf6f;
+      --red:       #ff6a4a;
+      --valentina: #7c3aed;
+      --bruno:     #059669;
+      --maximo:    #c0392b;
+      --sangosta:  #2980b9;
+      --text:      #f4e6c4;
+      --muted:     #cbb98a;
+      --pixel:     'Press Start 2P', 'Courier New', monospace;
+      --vt:        'VT323', 'Courier New', monospace;
+    }
+    *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+    html{ scroll-behavior:smooth; }
+    body{
+      font-family:var(--vt); font-size:20px; line-height:1.4;
+      background:var(--bg); color:var(--text);
+      -webkit-font-smoothing:none; image-rendering:pixelated;
+      overflow-x:hidden;
+    }
+    a{ color:var(--gold); text-decoration:none; }
+    a:hover{ color:#fff; }
+    img{ image-rendering:pixelated; }
+    .wrap{ max-width:1040px; margin:0 auto; padding:0 22px; }
+    code{ font-family:var(--vt); font-size:18px; background:#0e0b16; color:#ffe7a0; border:1px solid #3a2a18; padding:0 5px; }
+
+    h2.section-title{
+      font-family:var(--pixel); font-size:16px; color:var(--gold);
+      letter-spacing:2px; text-align:center; margin:0 0 8px;
+      text-shadow:3px 3px 0 #5a3418;
+    }
+    .section-sub{ text-align:center; color:var(--muted); font-size:20px; margin-bottom:28px; }
+    section{ padding:56px 0; border-top:2px solid #1f140a; }
+
+    /* ---------- top nav ---------- */
+    .nav{
+      position:sticky; top:0; z-index:20;
+      background:rgba(26,16,8,.96); border-bottom:3px solid var(--gold-dk);
+      backdrop-filter:blur(2px);
+    }
+    .nav .wrap{ display:flex; align-items:center; gap:18px; height:52px; }
+    .nav .brand{ font-family:var(--pixel); font-size:11px; color:var(--paper); letter-spacing:1px; text-shadow:2px 2px 0 #8a2a1f; }
+    .nav .links{ margin-left:auto; display:flex; gap:18px; align-items:center; }
+    .nav .links a{ font-family:var(--pixel); font-size:8px; letter-spacing:1px; color:var(--gold-dk); }
+    .nav .links a:hover{ color:#fff; }
+    .nav .links a.ghp{ border:2px solid var(--green); color:var(--green); padding:5px 8px; }
+    @media (max-width:720px){ .nav .links a:not(.ghp){ display:none; } }
+
+    /* ---------- buttons ---------- */
+    .btn{
+      font-family:var(--pixel); font-size:10px; letter-spacing:1.5px;
+      display:inline-block; padding:13px 18px; border:3px solid #f8f0d0;
+      color:#fff; background:#5a3418; box-shadow:4px 4px 0 #000;
+      transition:transform 60ms, box-shadow 60ms, filter 100ms; cursor:pointer;
+    }
+    .btn:hover{ transform:translate(-1px,-1px); box-shadow:5px 5px 0 #000; filter:brightness(1.15); color:#fff; }
+    .btn:active{ transform:translate(3px,3px); box-shadow:1px 1px 0 #000; }
+    .btn.primary{ background:#2f6a1a; border-color:#5fcf6f; }
+    .btn.ghost{ background:#3a2a1a; border-color:var(--gold-dk); color:var(--gold); }
+
+    /* ---------- hero ---------- */
+    .hero{
+      position:relative; border-bottom:3px solid var(--gold-dk);
+      background:#160f08 center/cover no-repeat;
+      min-height:clamp(420px,72vh,680px);
+      display:flex; align-items:center; image-rendering:pixelated;
+    }
+    .hero::before{ content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(10,8,4,.55),rgba(10,8,4,.82)); }
+    .hero .wrap{ position:relative; z-index:1; text-align:center; padding-top:40px; padding-bottom:40px; }
+    .hero h1{
+      font-family:var(--pixel); font-size:clamp(26px,6vw,52px); color:var(--paper);
+      letter-spacing:3px; line-height:1.25; margin-bottom:18px;
+      text-shadow:3px 3px 0 #8a2a1f, 6px 6px 0 #5a3418;
+    }
+    .hero .tag{ font-size:clamp(20px,3vw,28px); color:#ffe7a0; max-width:680px; margin:0 auto 26px; }
+    .hero .cta{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:22px; }
+    .hero .powered{ font-family:var(--pixel); font-size:8px; color:var(--gold-dk); letter-spacing:1px; }
+
+    /* ---------- preview mock ---------- */
+    .preview-sec{ background:#0c0a16; }
+    .preview{
+      position:relative; max-width:880px; margin:0 auto;
+      aspect-ratio:2702/1346; background:#160f08 center/cover no-repeat;
+      border:4px solid var(--gold-dk); box-shadow:8px 8px 0 rgba(0,0,0,.6);
+      image-rendering:pixelated;
+    }
+    .demo-bubble{
+      position:absolute; transform:translateX(-50%);
+      width:30%; max-width:260px; background:var(--paper); color:var(--ink);
+      border:3px solid var(--ink); padding:.5em .7em .6em;
+      font-family:var(--vt); font-size:clamp(11px,1.7vw,17px); line-height:1.15;
+      box-shadow:4px 4px 0 rgba(0,0,0,.5);
+    }
+    .demo-bubble::after{
+      content:''; position:absolute; bottom:-10px; left:50%; margin-left:-6px;
+      width:12px; height:12px; background:var(--paper);
+      border-right:3px solid var(--ink); border-bottom:3px solid var(--ink); transform:rotate(45deg);
+    }
+    .demo-bubble.b1{ left:34.5%; bottom:40%; border-color:#8a2a1f; }
+    .demo-bubble.b1::after{ border-right-color:#8a2a1f; border-bottom-color:#8a2a1f; }
+    .demo-bubble.b2{ left:68.5%; bottom:40%; border-color:#1a5a90; }
+    .demo-bubble.b2::after{ border-right-color:#1a5a90; border-bottom-color:#1a5a90; }
+    .demo-tag{ text-align:center; color:var(--muted); font-size:17px; margin-top:14px; }
+
+    /* ---------- features ---------- */
+    .grid{ display:grid; gap:16px; }
+    .features{ grid-template-columns:repeat(3,1fr); }
+    @media (max-width:840px){ .features{ grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:560px){ .features{ grid-template-columns:1fr; } }
+    .card{
+      background:var(--panel-3); border:3px solid #3a2a18; box-shadow:5px 5px 0 rgba(0,0,0,.5);
+      padding:18px 18px 20px;
+    }
+    .card .ic{ font-size:30px; line-height:1; }
+    .card h3{ font-family:var(--pixel); font-size:10px; color:var(--gold); letter-spacing:1px; margin:12px 0 8px; }
+    .card p{ color:var(--muted); }
+
+    /* ---------- flow pipeline ---------- */
+    .flow{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px; margin:6px 0 22px; }
+    .pill{
+      font-family:var(--pixel); font-size:9px; letter-spacing:1px; padding:10px 12px;
+      border:2px solid var(--gold-dk); color:var(--gold); background:var(--panel-2);
+    }
+    .pill.loop{ border-color:var(--green); color:var(--green); }
+    .pill.mod{ border-color:#8060b8; color:#c0a0f0; }
+    .arrow{ color:var(--gold-dk); font-family:var(--pixel); font-size:10px; }
+    .loop-wrap{ border:2px dashed var(--green); padding:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; border-radius:2px; }
+    .loop-label{ display:block; text-align:center; font-family:var(--pixel); font-size:7px; color:var(--green); letter-spacing:1px; margin-top:6px; }
+    .steps{ counter-reset:step; max-width:760px; margin:8px auto 0; }
+    .step{ display:flex; gap:14px; padding:12px 0; border-bottom:1px solid #1f140a; }
+    .step::before{
+      counter-increment:step; content:counter(step);
+      font-family:var(--pixel); font-size:11px; color:var(--bg);
+      background:var(--gold); width:30px; height:30px; flex:0 0 30px;
+      display:flex; align-items:center; justify-content:center; box-shadow:2px 2px 0 #000;
+    }
+    .step p{ color:var(--text); }
+    .center{ text-align:center; margin-top:24px; }
+
+    /* ---------- cast ---------- */
+    .cast{ grid-template-columns:repeat(3,1fr); }
+    @media (max-width:840px){ .cast{ grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:560px){ .cast{ grid-template-columns:1fr; } }
+    .persona{ border-left-width:6px; }
+    .persona .pn{ font-family:var(--pixel); font-size:11px; letter-spacing:1px; }
+    .persona .pr{ font-family:var(--pixel); font-size:7px; color:var(--gold-dk); letter-spacing:1px; margin:5px 0 8px; }
+
+    /* ---------- run ---------- */
+    .run-sec{ background:#0c0a16; }
+    pre.code{
+      background:#0e0b16; border:2px solid #3a2a18; color:#cfe7cf;
+      padding:16px 18px; overflow-x:auto; font-family:var(--vt); font-size:17px;
+      line-height:1.35; max-width:720px; margin:0 auto;
+    }
+    pre.code .c{ color:#7a6a4a; }
+    pre.code .k{ color:#ffb86a; }
+
+    /* ---------- stack badges ---------- */
+    .badges{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+    .badge{
+      font-family:var(--pixel); font-size:8px; letter-spacing:1px; padding:8px 11px;
+      border:2px solid var(--gold-dk); color:var(--gold); background:var(--panel-2);
+    }
+
+    /* ---------- footer ---------- */
+    footer{ background:var(--panel-2); border-top:3px solid var(--gold-dk); padding:30px 0; text-align:center; }
+    footer .flinks{ display:flex; gap:20px; justify-content:center; flex-wrap:wrap; margin-bottom:14px; }
+    footer .flinks a{ font-family:var(--pixel); font-size:8px; letter-spacing:1px; }
+    footer .fnote{ font-family:var(--pixel); font-size:7px; color:#6b5638; letter-spacing:1px; line-height:1.8; }
+    .blink{ color:var(--green); animation:blink 1s step-end infinite; }
+    @keyframes blink{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="wrap">
+      <span class="brand">◆ DEBATE ARENA</span>
+      <span class="links">
+        <a href="#features">Características</a>
+        <a href="#flow">Cómo funciona</a>
+        <a href="#cast">El elenco</a>
+        <a href="#run">Probalo</a>
+        <a href="docs.html">Docs</a>
+        <a class="ghp" href="https://github.com/pablosartorio/debate-arena">GitHub ↗</a>
+      </span>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" style="background-image:url('room-bg.png')">
+    <div class="wrap">
+      <h1>◆ DEBATE&nbsp;ARENA ◆</h1>
+      <p class="tag">Dos IA con posturas opuestas debaten en tiempo real. Un tercer agente modera, puntúa cada turno e interviene cuando hace falta.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/pablosartorio/debate-arena">▶ VER EN GITHUB</a>
+        <a class="btn ghost" href="docs.html">◈ DOCUMENTACIÓN</a>
+      </div>
+      <div class="powered">ORQUESTADO CON LANGGRAPH · LLMs LOCALES VÍA OLLAMA · PIXEL-ART</div>
+    </div>
+  </header>
+
+  <!-- PREVIEW -->
+  <section class="preview-sec">
+    <div class="wrap">
+      <h2 class="section-title">LA ARENA</h2>
+      <p class="section-sub">Un cuarto pixel-art donde el debate sucede, token a token.</p>
+      <div class="preview" style="background-image:url('room-bg.png')">
+        <div class="demo-bubble b1">La aceleración tecnológica es nuestra mejor apuesta: frenar la IA hoy es condenar el futuro.</div>
+        <div class="demo-bubble b2">Cada gran tecnología prometió liberar y terminó concentrando poder. ¿Quién decide?</div>
+      </div>
+      <p class="demo-tag">▸ burbujas, estados y scoreboard flotan sobre la escena, alineados al cast pintado.</p>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="wrap">
+      <h2 class="section-title">QUÉ HACE</h2>
+      <p class="section-sub">Un pipeline agentic completo, no solo dos chatbots tirándose texto.</p>
+      <div class="grid features">
+        <div class="card"><div class="ic">⚔️</div><h3>DEBATE MULTI-AGENTE</h3><p>Dos personas con ideologías opuestas argumentan en turnos alternados, respondiendo a los puntos del otro.</p></div>
+        <div class="card"><div class="ic">⚖️</div><h3>MODERADOR CON SCORING</h3><p>Evalúa cada turno en 8 dimensiones (fidelidad factual, alucinación, claridad…) y arma un scoreboard en vivo.</p></div>
+        <div class="card"><div class="ic">🔭</div><h3>SCOUT + BÚSQUEDA WEB</h3><p>Antes de arrancar, analiza el tema y trae contexto real desde DuckDuckGo para calibrar el debate.</p></div>
+        <div class="card"><div class="ic">🧠</div><h3>PLANIFICACIÓN INTERNA</h3><p>Cada agente arma su estrategia y sus afirmaciones en una fase privada (JSON) antes de hablar.</p></div>
+        <div class="card"><div class="ic">📡</div><h3>STREAMING EN VIVO</h3><p>Tokens, evaluaciones e intervenciones viajan por WebSocket en tiempo real, palabra por palabra.</p></div>
+        <div class="card"><div class="ic">💾</div><h3>HISTORIAL + EXPORT</h3><p>Todo se persiste en SQLite: revisás debates pasados, sus scores e intervenciones, y los exportás en JSON.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLOW -->
+  <section id="flow">
+    <div class="wrap">
+      <h2 class="section-title">CÓMO FUNCIONA</h2>
+      <p class="section-sub">Un grafo LangGraph recorre el debate de punta a punta.</p>
+
+      <div class="flow">
+        <span class="pill">SCOUT</span>
+        <span class="arrow">▸</span>
+        <span>
+          <span class="loop-wrap">
+            <span class="pill loop">PLAN</span><span class="arrow">▸</span>
+            <span class="pill loop">SPEAK</span><span class="arrow">▸</span>
+            <span class="pill loop">MODERATE</span><span class="arrow">▸</span>
+            <span class="pill mod">¿INTERVENE?</span>
+          </span>
+          <span class="loop-label">× cada turno</span>
+        </span>
+        <span class="arrow">▸</span>
+        <span class="pill">SUMMARY</span>
+      </div>
+
+      <div class="steps">
+        <div class="step"><p>Elegís tema y participantes. El <strong>Scout</strong> mapea el terreno: conceptos clave, riesgos de desinformación y criterios de evaluación.</p></div>
+        <div class="step"><p>Por turno, cada agente <strong>planifica</strong> su jugada, <strong>habla</strong> en streaming, y el <strong>moderador</strong> lo evalúa y actualiza el score.</p></div>
+        <div class="step"><p>Si un turno se va de eje (alucinación, repetición, evasión), el moderador <strong>interviene</strong> como tercer hablante para reencauzar.</p></div>
+        <div class="step"><p>Al cerrar: <strong>ganador</strong> por score acumulado (determinista) + un <strong>resumen</strong> narrativo del LLM. Todo queda guardado.</p></div>
+      </div>
+
+      <div class="center">
+        <a class="btn ghost" href="docs.html#grafo">◈ VER EL GRAFO COMPLETO</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAST -->
+  <section id="cast">
+    <div class="wrap">
+      <h2 class="section-title">EL ELENCO</h2>
+      <p class="section-sub">Personas con posturas marcadas. El debate por defecto: Valentina vs Bruno.</p>
+      <div class="grid cast">
+        <div class="card persona" style="border-left-color:var(--valentina)">
+          <div class="pn" style="color:var(--valentina)">⚡ VALENTINA KROSS</div>
+          <div class="pr">ACELERACIONISTA</div>
+          <p>Pro-tech sin frenos: la IA y la automatización como camino más rápido a la abundancia.</p>
+        </div>
+        <div class="card persona" style="border-left-color:var(--bruno)">
+          <div class="pn" style="color:var(--bruno)">🌿 BRUNO FELDEN</div>
+          <div class="pr">HUMANISTA</div>
+          <p>La tecnología subordinada al bienestar humano y al control democrático.</p>
+        </div>
+        <div class="card persona" style="border-left-color:var(--gold-dk)">
+          <div class="pn" style="color:var(--gold)">⚖️ MODERADOR</div>
+          <div class="pr">IMPARCIAL</div>
+          <p>No toma partido: evalúa cada turno, lleva el score e interviene si detecta problemas.</p>
+        </div>
+        <div class="card persona" style="border-left-color:var(--maximo)">
+          <div class="pn" style="color:var(--maximo)">✊ MÁXIMO</div>
+          <div class="pr">ESTATISTA</div>
+          <p>Estado activo en justicia social y regulación de mercados. (Disponible vía API.)</p>
+        </div>
+        <div class="card persona" style="border-left-color:var(--sangosta)">
+          <div class="pn" style="color:var(--sangosta)">📈 SANGOSTA</div>
+          <div class="pr">LIBERAL</div>
+          <p>Mercado libre y mínima intervención estatal. (Disponible vía API.)</p>
+        </div>
+        <div class="card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+          <div class="ic" style="font-size:26px">➕</div>
+          <h3 style="margin-top:10px">SUMÁ LA TUYA</h3>
+          <p>Una persona = una entrada en <code>personas.py</code>. <a href="docs.html#dev">Ver cómo →</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RUN -->
+  <section id="run" class="run-sec">
+    <div class="wrap">
+      <h2 class="section-title">PROBALO LOCALMENTE</h2>
+      <p class="section-sub">Todo corre local con Docker + Ollama. Sin API keys.</p>
+      <pre class="code"><span class="c"># 1. clonar</span>
+git clone https://github.com/pablosartorio/debate-arena.git
+cd debate-arena
+
+<span class="c"># 2. levantar (Ollama + backend)</span>
+make dev
+
+<span class="c"># 3. descargar el modelo (1ra vez) y abrir</span>
+./init_models.sh
+<span class="k">open</span> http://localhost:8080</pre>
+      <p class="section-sub" style="margin:24px 0 0">Stack:</p>
+      <div class="badges" style="margin-top:14px">
+        <span class="badge">PYTHON 3.12</span>
+        <span class="badge">FASTAPI</span>
+        <span class="badge">LANGGRAPH 0.2</span>
+        <span class="badge">OLLAMA</span>
+        <span class="badge">AIOSQLITE · WAL</span>
+        <span class="badge">VANILLA JS</span>
+        <span class="badge">DOCKER</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="wrap">
+      <div class="flinks">
+        <a href="https://github.com/pablosartorio/debate-arena">GITHUB ↗</a>
+        <a href="docs.html">DOCUMENTACIÓN</a>
+        <a href="docs.html#eventos">API / EVENTOS</a>
+        <a href="https://github.com/pablosartorio/debate-arena/blob/main/LICENSE">LICENCIA MIT</a>
+      </div>
+      <div class="fnote">
+        ◆ DEBATE ARENA <span class="blink">▌</span><br>
+        un sandbox de aprendizaje de LangGraph · hecho con pixel-art
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

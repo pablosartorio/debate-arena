@@ -1,5 +1,4 @@
-from typing import TypedDict, Annotated, Literal
-from operator import add
+from typing import Annotated, Literal, TypedDict
 
 
 class TurnScore(TypedDict, total=False):

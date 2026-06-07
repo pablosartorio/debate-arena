@@ -7,7 +7,7 @@ Tareas:
   3. Persistir en debates.summary y debates.winner_id.
   4. Emitir `debate_summary` event con todo el payload.
 
-DegradaciÃ³n elegante: si el LLM falla, el winner sigue siendo determinable
+Degradación elegante: si el LLM falla, el winner sigue siendo determinable
 y emitimos un summary minimo.
 """
 
@@ -20,7 +20,7 @@ from typing import Any
 
 from langchain_core.runnables import RunnableConfig
 
-from agents.summary_agent import SummaryAgent, DebateSummaryModel, determine_winner
+from agents.summary_agent import DebateSummaryModel, SummaryAgent, determine_winner
 from graph.state import DebateState
 
 logger = logging.getLogger(__name__)
@@ -32,6 +32,8 @@ _SUMMARY_TIMEOUT = 90.0
 async def summary_node(state: DebateState, config: RunnableConfig) -> dict[str, Any]:
     configurable = config.get("configurable", {}) if config else {}
     ws_queue: asyncio.Queue | None = configurable.get("ws_queue")
+    if ws_queue is not None:
+        await ws_queue.put({"type": "node_active", "node": "summarize"})
     repo = configurable.get("repo")
     debate_id = configurable.get("debate_id") or state.get("debate_id")
 
@@ -61,7 +63,7 @@ async def summary_node(state: DebateState, config: RunnableConfig) -> dict[str, 
             ),
             timeout=_SUMMARY_TIMEOUT,
         )
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("summary timed out")
         summary_model = DebateSummaryModel.empty()
     except Exception:

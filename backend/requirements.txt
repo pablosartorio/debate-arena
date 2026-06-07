@@ -1,9 +1,0 @@
-fastapi==0.115.5
-uvicorn[standard]==0.32.1
-websockets==14.1
-httpx==0.28.0
-pydantic==2.10.3
-langgraph==0.2.62
-langchain-core==0.3.28
-aiosqlite==0.20.0
-duckduckgo-search==6.4.2

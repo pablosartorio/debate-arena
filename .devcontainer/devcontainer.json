@@ -37,6 +37,7 @@
     }
   },
 
-  // Instala dependencias al crear el container
-  "postCreateCommand": "pip install -r /app/requirements.txt"
+  // Las dependencias de runtime ya vienen instaladas en la imagen (backend/Dockerfile
+  // las instala con uv desde pyproject.toml). Acá sumamos el tooling de desarrollo.
+  "postCreateCommand": "uv pip install --system pytest pytest-asyncio ruff"
 }

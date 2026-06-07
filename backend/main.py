@@ -1,18 +1,17 @@
+import json
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-import json
-
+import config
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
+from ws_bridge import DebateSession
 
 from agents.personas import PERSONAS
-import config
-from db.connection import init_db, close_db
+from db.connection import close_db, init_db
 from db.sqlite_repository import SQLiteDebateRepository
-from ws_bridge import DebateSession
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
@@ -139,6 +138,34 @@ async def export_debate(debate_id: str):
         media_type="application/json",
         headers={"Content-Disposition": f'attachment; filename="debate-{short_id}.json"'},
     )
+
+
+# ---------- Diagrama del grafo ----------
+
+
+@app.get("/api/graph/diagram")
+def get_graph_diagram():
+    import re
+
+    from graph.graph import build_graph
+    compiled = build_graph()
+    raw = compiled.get_graph().draw_mermaid()
+
+    # Replace the %%{init}%% block to inject dark theme + better spacing
+    themed = re.sub(
+        r"%%\{init:.*?\}%%",
+        "%%{init: {'theme':'dark','flowchart':{'curve':'linear','padding':20,'nodeSpacing':50,'rankSpacing':60}}}%%",
+        raw,
+    )
+    # Override LangGraph's default light classDefs with pixel-art dark palette
+    themed = re.sub(r"classDef default[^\n]*",
+                    "classDef default fill:#1a0e05,stroke:#c8923a,color:#f0d090,stroke-width:2px", themed)
+    themed = re.sub(r"classDef first[^\n]*",
+                    "classDef first fill:#0a0616,stroke:#8060b8,stroke-dasharray:5 3,color:#c0a0f0,stroke-width:2px", themed)
+    themed = re.sub(r"classDef last[^\n]*",
+                    "classDef last fill:#180e2e,stroke:#8060b8,color:#c0a0f0,stroke-width:2px", themed)
+
+    return {"mermaid": themed}
 
 
 # ---------- WebSocket ----------
