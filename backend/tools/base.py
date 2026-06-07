@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class ToolInput(BaseModel):
@@ -29,7 +29,7 @@ class ToolOutput(BaseModel):
     error: str = ""
 
     @classmethod
-    def fail(cls, message: str, latency_ms: int = 0) -> "ToolOutput":
+    def fail(cls, message: str, latency_ms: int = 0) -> ToolOutput:
         return cls(success=False, error=message, latency_ms=latency_ms)
 
 

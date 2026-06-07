@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import logging
 
+import config
 import httpx
 from pydantic import BaseModel, Field
 
-import config
 from agents.structured_response import parse_structured_response
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class DebateSummaryModel(BaseModel):
     key_moments: list[str] = Field(default_factory=list)   # 2-3 momentos del debate
 
     @classmethod
-    def empty(cls) -> "DebateSummaryModel":
+    def empty(cls) -> DebateSummaryModel:
         return cls()
 
 

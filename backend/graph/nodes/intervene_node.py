@@ -100,7 +100,7 @@ async def intervene_node(state: DebateState, config: RunnableConfig) -> dict[str
 
     try:
         await asyncio.wait_for(_run_stream(), timeout=_INTERVENE_TIMEOUT)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("intervention stream timed out for turn %s", turn_number)
     except Exception:
         logger.exception("intervention failed for turn %s", turn_number)

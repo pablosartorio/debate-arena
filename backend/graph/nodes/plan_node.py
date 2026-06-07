@@ -20,7 +20,6 @@ from typing import Any
 
 from langchain_core.runnables import RunnableConfig
 
-import config as app_config
 from agents.debater_agent import AgentPlanModel, plan_for_turn
 from agents.personas import PERSONAS
 from graph.state import DebateState
@@ -88,7 +87,7 @@ async def plan_node(state: DebateState, config: RunnableConfig) -> dict[str, Any
             ),
             timeout=_PLAN_TIMEOUT,
         )
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("plan timed out for agent=%s turn=%s", agent_id, turn_number)
         plan = AgentPlanModel.empty()
     except Exception:

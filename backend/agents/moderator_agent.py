@@ -10,12 +10,12 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import AsyncIterator
-
-import httpx
-from pydantic import BaseModel, Field, field_validator
+from collections.abc import AsyncIterator
 
 import config
+import httpx
+from pydantic import BaseModel, field_validator
+
 from agents.structured_response import parse_structured_response
 
 logger = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ class ModeratorEvaluation(BaseModel):
             return 0.5
 
     @classmethod
-    def neutral(cls) -> "ModeratorEvaluation":
+    def neutral(cls) -> ModeratorEvaluation:
         """Score neutro cuando el moderador falla — no penaliza ni premia."""
         return cls()
 

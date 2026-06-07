@@ -11,13 +11,12 @@ Etapa 4: el scout solo usa el LLM (sin web search). Etapa 9 sumara tools.
 
 from __future__ import annotations
 
-import json
 import logging
 
+import config
 import httpx
 from pydantic import BaseModel, Field
 
-import config
 from agents.structured_response import parse_structured_response
 
 logger = logging.getLogger(__name__)
@@ -33,7 +32,7 @@ class ScoutResultModel(BaseModel):
     context_summary: str = ""
 
     @classmethod
-    def empty(cls) -> "ScoutResultModel":
+    def empty(cls) -> ScoutResultModel:
         return cls()
 
 

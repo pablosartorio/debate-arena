@@ -19,9 +19,9 @@ import time
 import uuid
 from typing import Any
 
+import config as app_config
 from langchain_core.runnables import RunnableConfig
 
-import config as app_config
 from agents.moderator_agent import ModeratorAgent, ModeratorEvaluation
 from graph.state import DebateState, ModeratorIntervention
 
@@ -144,7 +144,7 @@ async def moderate_node(state: DebateState, config: RunnableConfig) -> dict[str,
             ),
             timeout=_MODERATE_TIMEOUT,
         )
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("moderator timed out for turn %s", turn_number)
         evaluation = ModeratorEvaluation.neutral()
     except Exception:

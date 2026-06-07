@@ -1,18 +1,17 @@
+import json
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-import json
-
+import config
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
+from ws_bridge import DebateSession
 
 from agents.personas import PERSONAS
-import config
-from db.connection import init_db, close_db
+from db.connection import close_db, init_db
 from db.sqlite_repository import SQLiteDebateRepository
-from ws_bridge import DebateSession
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
@@ -147,6 +146,7 @@ async def export_debate(debate_id: str):
 @app.get("/api/graph/diagram")
 def get_graph_diagram():
     import re
+
     from graph.graph import build_graph
     compiled = build_graph()
     raw = compiled.get_graph().draw_mermaid()

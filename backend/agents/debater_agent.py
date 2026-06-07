@@ -11,13 +11,12 @@ NUNCA se emite al frontend (es razonamiento interno).
 
 from __future__ import annotations
 
-import json
 import logging
 
+import config
 import httpx
 from pydantic import BaseModel, Field
 
-import config
 from agents.personas import Persona
 from agents.structured_response import parse_structured_response
 
@@ -30,7 +29,7 @@ class AgentPlanModel(BaseModel):
     rebuttal_target: str | None = None
 
     @classmethod
-    def empty(cls) -> "AgentPlanModel":
+    def empty(cls) -> AgentPlanModel:
         return cls()
 
 

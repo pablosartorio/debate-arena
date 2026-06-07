@@ -18,6 +18,7 @@ import logging
 import time
 
 import config
+
 from tools.base import BaseTool, ToolInput, ToolOutput
 
 logger = logging.getLogger(__name__)
@@ -84,7 +85,7 @@ class WebSearchTool(BaseTool):
                 loop.run_in_executor(None, _search_sync, query, self.max_results),
                 timeout=config.TOOL_TIMEOUT_SECONDS,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             latency_ms = int((time.perf_counter() - started) * 1000)
             logger.warning("web_search timeout for %r", query)
             return ToolOutput.fail("timeout", latency_ms=latency_ms)

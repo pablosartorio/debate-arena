@@ -7,10 +7,10 @@ Las etapas siguientes agregaran nodos sin reescribir esta estructura base.
 import asyncio
 from typing import Any
 
-from langgraph.graph import StateGraph, START, END
 from langchain_core.runnables import RunnableConfig
+from langgraph.graph import END, START, StateGraph
 
-from graph.state import DebateState
+from graph.edges import route_after_moderate, route_after_speak, route_from_router
 from graph.nodes.intervene_node import intervene_node
 from graph.nodes.moderate_node import moderate_node
 from graph.nodes.plan_node import plan_node
@@ -18,7 +18,7 @@ from graph.nodes.router_node import router_node
 from graph.nodes.scout_node import scout_node
 from graph.nodes.speak_node import speak_node
 from graph.nodes.summary_node import summary_node
-from graph.edges import route_from_router, route_after_speak, route_after_moderate
+from graph.state import DebateState
 
 
 async def _end_node(state: DebateState, config: RunnableConfig) -> dict[str, Any]:

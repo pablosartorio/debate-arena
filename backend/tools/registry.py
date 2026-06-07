@@ -5,7 +5,6 @@ from __future__ import annotations
 from tools.base import BaseTool
 from tools.web_search import WebSearchTool
 
-
 TOOL_REGISTRY: dict[str, BaseTool] = {
     "web_search": WebSearchTool(max_results=3),
 }

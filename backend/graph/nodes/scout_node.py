@@ -14,9 +14,9 @@ import time
 import uuid
 from typing import Any
 
+import config as app_config
 from langchain_core.runnables import RunnableConfig
 
-import config as app_config
 from agents.scout_agent import ScoutAgent, ScoutResultModel
 from graph.state import DebateState
 from tools.base import ToolInput
@@ -125,7 +125,7 @@ async def scout_node(state: DebateState, config: RunnableConfig) -> dict[str, An
             scout.analyze(topic, web_evidence=web_evidence, sources=sources),
             timeout=app_config.SCOUTING_TIMEOUT_SECONDS,
         )
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("scout timed out after %.1fs", app_config.SCOUTING_TIMEOUT_SECONDS)
         result = ScoutResultModel.empty()
     except Exception:

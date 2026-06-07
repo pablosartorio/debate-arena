@@ -20,7 +20,7 @@ from typing import Any
 
 from langchain_core.runnables import RunnableConfig
 
-from agents.summary_agent import SummaryAgent, DebateSummaryModel, determine_winner
+from agents.summary_agent import DebateSummaryModel, SummaryAgent, determine_winner
 from graph.state import DebateState
 
 logger = logging.getLogger(__name__)
@@ -63,7 +63,7 @@ async def summary_node(state: DebateState, config: RunnableConfig) -> dict[str, 
             ),
             timeout=_SUMMARY_TIMEOUT,
         )
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("summary timed out")
         summary_model = DebateSummaryModel.empty()
     except Exception:

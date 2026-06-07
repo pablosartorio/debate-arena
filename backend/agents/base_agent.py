@@ -1,8 +1,10 @@
-import httpx
 import json
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
+
+import httpx
+from config import LLM_TIMEOUT_SECONDS, OLLAMA_HOST
+
 from agents.personas import Persona
-from config import OLLAMA_HOST, LLM_TIMEOUT_SECONDS
 
 
 class BaseAgent:

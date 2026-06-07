@@ -13,10 +13,8 @@ from __future__ import annotations
 import asyncio
 import logging
 from pathlib import Path
-from typing import Optional
 
 import aiosqlite
-
 import config
 
 logger = logging.getLogger(__name__)
@@ -30,7 +28,7 @@ class Database:
 
     def __init__(self, path: str):
         self.path = path
-        self._conn: Optional[aiosqlite.Connection] = None
+        self._conn: aiosqlite.Connection | None = None
         self._lock = asyncio.Lock()
 
     async def connect(self) -> aiosqlite.Connection:
@@ -71,7 +69,7 @@ class Database:
 
 
 # Singleton global. Lo inicializa el lifespan de FastAPI.
-_db: Optional[Database] = None
+_db: Database | None = None
 
 
 def get_db() -> Database:

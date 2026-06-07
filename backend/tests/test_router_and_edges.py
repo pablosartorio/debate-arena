@@ -8,7 +8,6 @@ assert resultado esperado.
 from graph.edges import route_after_moderate, route_after_speak, route_from_router
 from graph.nodes.router_node import router_node
 
-
 # ---------- router_node ----------
 
 
